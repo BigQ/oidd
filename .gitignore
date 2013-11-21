@@ -1,7 +1,7 @@
 target/
 .classpath
 .project
-.setting/
+.settings/
 .metadata
 bin/
 *.bak

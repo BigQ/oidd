@@ -21,10 +21,11 @@ public class EventInfoCleansingMapper extends
 		int index = 0;
 
 		while (itr.hasMoreElements()) {
+			temp = itr.nextToken();
+
 			if (index == 0) {
-				info.getCell().set(itr.nextToken());
+				info.getCell().set(temp);
 			} else if (index == 1) {
-				temp = itr.nextToken();
 				if (StringUtils.isNumeric(temp)) {
 					info.getSector().set(Integer.parseInt(temp));
 				} else {
@@ -32,21 +33,24 @@ public class EventInfoCleansingMapper extends
 					break;
 				}
 			} else if (index == 4) {
-				info.getMdn().set(itr.nextToken());
+				if (temp.length() >= 4) {
+					info.getMdn().set(temp);
+				} else {
+					// maybe add a counter to count the invalid elements
+					break;
+				}
 			} else if (index == 6) {
-				info.getTrackTime().set(itr.nextToken());
+				info.getTrackTime().set(temp);
 			} else if (index == 7) {
-				temp = itr.nextToken();
 				if (StringUtils.isNumeric(temp)) {
 					info.getEvent().set(Integer.parseInt(temp));
 				} else {
 					// maybe add a counter to count the invalid elements
 					break;
 				}
-				context.write(info.getTrackTime(), info);
-			} else {
-				itr.nextToken();
+				context.write(info.getMdn(), info);
 			}
+
 			index++;
 		}
 	}
