@@ -1,0 +1,9 @@
+target/
+.classpath
+.project
+.setting/
+.metadata
+bin/
+*.bak
+*.swp
+*~.nib

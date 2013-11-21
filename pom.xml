@@ -12,6 +12,7 @@
 	<name>OIDD :: Module</name>
 	
 	<modules>
+		<module>analyst</module>
 		<module>parent</module>
 	</modules>
 </project>
