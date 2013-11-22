@@ -5,20 +5,21 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 public class EventInfo implements Writable {
 
 	private final Text mdn;
-	private final Text trackTime;
+	private final LongWritable trackTime;
 	private final IntWritable event;
 	private final Text cell;
 	private final IntWritable sector;
 
 	public EventInfo() {
 		this.mdn = new Text();
-		this.trackTime = new Text();
+		this.trackTime = new LongWritable();
 		this.event = new IntWritable();
 		this.cell = new Text();
 		this.sector = new IntWritable();
@@ -46,7 +47,7 @@ public class EventInfo implements Writable {
 		return mdn;
 	}
 
-	public Text getTrackTime() {
+	public LongWritable getTrackTime() {
 		return trackTime;
 	}
 
