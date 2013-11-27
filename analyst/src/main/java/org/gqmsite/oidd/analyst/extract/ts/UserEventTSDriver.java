@@ -65,7 +65,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 	public static class KeyComparator extends WritableComparator {
 
 		protected KeyComparator() {
-			super(UserTimePair.class);
+			super(UserTimePair.class, true);
 		}
 
 		@SuppressWarnings("rawtypes")
@@ -84,7 +84,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 
 	public static class GroupComparator extends WritableComparator {
 		protected GroupComparator() {
-			super(UserTimePair.class);
+			super(UserTimePair.class, true);
 		}
 
 		@SuppressWarnings("rawtypes")
