@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.gqmsite.oidd.analyst.io.EventInfo;
 
 public class EventInfoCleansingMapper extends
 		Mapper<LongWritable, Text, Text, EventInfo> {

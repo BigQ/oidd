@@ -11,6 +11,7 @@ import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.gqmsite.oidd.analyst.io.EventInfo;
 
 public class EventInfoCleansingDriver extends Configured implements Tool {
 
@@ -31,7 +32,8 @@ public class EventInfoCleansingDriver extends Configured implements Tool {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf);
 		job.setJobName("Event Information Cleansing");
-		job.setJarByClass(EventInfoCleansingDriver.class);
+		job.setJarByClass(getClass());
+		
 		job.setMapperClass(EventInfoCleansingMapper.class);
 		// job.setPartitionerClass(EventInfoCleansingPartitioner.class);
 		job.setReducerClass(EventInfoCleansingReducer.class);

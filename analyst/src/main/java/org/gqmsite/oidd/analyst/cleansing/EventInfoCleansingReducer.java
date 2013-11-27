@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.gqmsite.oidd.analyst.io.EventInfo;
 
 public class EventInfoCleansingReducer extends
 		Reducer<Text, EventInfo, Text, EventInfo> {
