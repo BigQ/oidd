@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.gqmsite.oidd.analyst.io.EventArray;
@@ -51,8 +51,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 		job.setOutputValueClass(EventArray.class);
 
 		job.setInputFormatClass(SequenceFileInputFormat.class);
-		LazyOutputFormat.setOutputFormatClass(job,
-				SequenceFileOutputFormat.class);
+		LazyOutputFormat.setOutputFormatClass(job, MapFileOutputFormat.class);
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
