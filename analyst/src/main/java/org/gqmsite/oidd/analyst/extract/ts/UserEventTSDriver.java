@@ -1,6 +1,5 @@
 package org.gqmsite.oidd.analyst.extract.ts;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -34,8 +33,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 			return -1;
 		}
 
-		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf);
+		Job job = Job.getInstance(getConf());
 		job.setJobName("User Event Time Series Formatter");
 		job.setJarByClass(getClass());
 
@@ -55,8 +53,6 @@ public class UserEventTSDriver extends Configured implements Tool {
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-		// job.setNumReduceTasks(2);
 
 		return job.waitForCompletion(true) ? 0 : 1;
 	}

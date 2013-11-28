@@ -1,6 +1,5 @@
-package org.gqmsite.oidd.analyst.extract.ts;
+package org.gqmsite.oidd.analyst.utils;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
@@ -8,13 +7,11 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.gqmsite.oidd.analyst.io.EventArray;
-import org.gqmsite.oidd.analyst.io.EventInfo;
 
-public class UserEventTSGet extends Configured implements Tool {
+public class MapFileGet extends Configured implements Tool {
 
 	public static void main(String[] args) throws Exception {
-		int exitCode = ToolRunner.run(new UserEventTSGet(), args);
+		int exitCode = ToolRunner.run(new MapFileGet(), args);
 		System.exit(exitCode);
 	}
 
@@ -28,16 +25,16 @@ public class UserEventTSGet extends Configured implements Tool {
 		}
 
 		String mapUri = args[0];
-		Text mdn = new Text(args[1]);
-		EventArray value = new EventArray();
-		Configuration conf = new Configuration();
+
 		Path map = new Path(mapUri);
-		try (MapFile.Reader reader = new MapFile.Reader(map, conf)) {
+		try (MapFile.Reader reader = new MapFile.Reader(map, getConf())) {
+			Text mdn = new Text(args[1]);
+			// new instance
+			Writable value = (Writable) reader.getValueClass().newInstance();
+			// read value
 			reader.get(mdn, value);
-			for (Writable item : value.get()) {
-				EventInfo info = (EventInfo) item;
-				System.out.println(info.toString());
-			}
+			// print value
+			System.out.println(value.toString());
 		}
 		return 0;
 	}
