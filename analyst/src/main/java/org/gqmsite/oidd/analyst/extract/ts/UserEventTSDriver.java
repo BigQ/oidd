@@ -72,7 +72,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 			if (cmp != 0) {
 				return cmp;
 			}
-			return p1.getTrackTime().compareTo(p2.getTrackTime());
+			return p1.getDiffs().compareTo(p2.getDiffs());
 		}
 
 	}

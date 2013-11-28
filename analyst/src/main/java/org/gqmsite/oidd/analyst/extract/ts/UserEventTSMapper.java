@@ -15,7 +15,7 @@ public class UserEventTSMapper extends
 	@Override
 	protected void map(Text key, EventInfo value, Context context)
 			throws IOException, InterruptedException {
-		pairKey.set(value.getMdn(), value.getTrackTime());
+		pairKey.set(key, value.getDiffs());
 		context.write(pairKey, value);
 	}
 

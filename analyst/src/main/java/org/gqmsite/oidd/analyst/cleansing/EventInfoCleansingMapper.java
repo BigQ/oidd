@@ -3,6 +3,7 @@ package org.gqmsite.oidd.analyst.cleansing;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,8 +16,8 @@ public class EventInfoCleansingMapper extends
 		Mapper<LongWritable, Text, Text, EventInfo> {
 
 	private EventInfo info = new EventInfo();
-	private Text mapOutputKey = new Text();
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private Calendar calendar = Calendar.getInstance();
 
 	@Override
 	protected void map(LongWritable key, Text value, Context context)
@@ -44,12 +45,14 @@ public class EventInfoCleansingMapper extends
 					// maybe add a counter to count the invalid elements
 					break;
 				}
-			} else if (index == 6) { // parse trackTime
+			} else if (index == 6) { // parse trackDate and diff-seconds
 				try {
-					info.getTrackTime().set(sdf.parse(temp).getTime());
-					mapOutputKey.set(temp.replaceAll("\\D", ""));
-					mapOutputKey.append(info.getMdn().getBytes(), 0, info
-							.getMdn().getLength());
+					info.getTrackDate().set(temp.substring(0,11).replaceAll("\\D", ""));
+					calendar.setTime(sdf.parse(temp));
+					info.getDiffs()
+							.set(calendar.get(Calendar.SECOND)
+									+ calendar.get(Calendar.MINUTE) * 60
+									+ calendar.get(Calendar.HOUR_OF_DAY) * 3600);
 				} catch (ParseException ex) {
 					// maybe add a counter to count the invalid elements
 					break;
@@ -61,7 +64,7 @@ public class EventInfoCleansingMapper extends
 					// maybe add a counter to count the invalid elements
 					break;
 				}
-				context.write(mapOutputKey, info);
+				context.write(info.getMdn(), info);
 			}
 
 			index++;

@@ -22,8 +22,7 @@ public class EventInfoCleansingReducer extends
 	protected void reduce(Text key, Iterable<EventInfo> values, Context context)
 			throws IOException, InterruptedException {
 		for (EventInfo info : values) {
-			multipleOutputs.write(info.getMdn(), info, key.toString()
-					.substring(0, 13).replaceAll("\\D", ""));
+			multipleOutputs.write(key, info, info.getTrackDate().toString());
 		}
 	}
 
