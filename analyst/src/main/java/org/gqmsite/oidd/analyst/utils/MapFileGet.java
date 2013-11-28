@@ -32,9 +32,17 @@ public class MapFileGet extends Configured implements Tool {
 			// new instance
 			Writable value = (Writable) reader.getValueClass().newInstance();
 			// read value
-			reader.get(mdn, value);
-			// print value
-			System.out.println(value.toString());
+			if (reader.get(mdn, value) != null) {
+				// print value
+				System.out.println(value.toString());
+				while (reader.next(mdn, value)) {
+					if (!mdn.toString().endsWith(args[1])) {
+						break;
+					}
+					System.out.println(value.toString());
+				}
+			}
+
 		}
 		return 0;
 	}
