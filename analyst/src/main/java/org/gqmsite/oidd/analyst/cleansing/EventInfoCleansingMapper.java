@@ -15,7 +15,7 @@ public class EventInfoCleansingMapper extends
 		Mapper<LongWritable, Text, Text, EventInfo> {
 
 	private EventInfo info = new EventInfo();
-	private Text trackTime = new Text();
+	private Text mapOutputKey = new Text();
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Override
@@ -47,7 +47,9 @@ public class EventInfoCleansingMapper extends
 			} else if (index == 6) { // parse trackTime
 				try {
 					info.getTrackTime().set(sdf.parse(temp).getTime());
-					trackTime.set(temp);
+					mapOutputKey.set(temp.replaceAll("\\D", ""));
+					mapOutputKey.append(info.getMdn().getBytes(), 0, info
+							.getMdn().getLength());
 				} catch (ParseException ex) {
 					// maybe add a counter to count the invalid elements
 					break;
@@ -59,7 +61,7 @@ public class EventInfoCleansingMapper extends
 					// maybe add a counter to count the invalid elements
 					break;
 				}
-				context.write(trackTime, info);
+				context.write(mapOutputKey, info);
 			}
 
 			index++;
