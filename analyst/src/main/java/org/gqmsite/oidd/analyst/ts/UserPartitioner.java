@@ -7,9 +7,8 @@ import org.gqmsite.oidd.analyst.io.UserTimePair;
 public class UserPartitioner extends Partitioner<UserTimePair, EventInfo> {
 
 	@Override
-	public int getPartition(UserTimePair key, EventInfo value,
-			int numPartitions) {
-		return key.getMdn().toString().hashCode() % numPartitions;
+	public int getPartition(UserTimePair key, EventInfo value, int numPartitions) {
+		return key.getKey().toString().substring(9).hashCode() % numPartitions;
 	}
 
 }

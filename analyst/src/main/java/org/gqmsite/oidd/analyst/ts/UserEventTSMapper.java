@@ -11,11 +11,16 @@ public class UserEventTSMapper extends
 		Mapper<Text, EventInfo, UserTimePair, EventInfo> {
 
 	private final UserTimePair pairKey = new UserTimePair();
+	private final StringBuffer keyWithSalt = new StringBuffer();
 
 	@Override
 	protected void map(Text key, EventInfo value, Context context)
 			throws IOException, InterruptedException {
-		pairKey.set(key, value.getDiffs());
+		// key pattern <trackDate>:<MDN>
+		keyWithSalt.append(value.getTrackDate().toString()).append(":")
+				.append(key.toString());
+		pairKey.getKey().set(keyWithSalt.toString());
+		pairKey.getDiffs().set(value.getDiffs().get());
 		context.write(pairKey, value);
 	}
 

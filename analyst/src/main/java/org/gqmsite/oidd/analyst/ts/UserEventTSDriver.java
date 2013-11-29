@@ -2,11 +2,11 @@ package org.gqmsite.oidd.analyst.ts;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.io.SequenceFile.CompressionType;
-import org.apache.hadoop.io.compress.GzipCodec;
+import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -60,7 +60,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 		SequenceFileOutputFormat.setOutputCompressionType(job,
 				CompressionType.BLOCK);
 		FileOutputFormat.setCompressOutput(job, true);
-		FileOutputFormat.setOutputCompressorClass(job, GzipCodec.class);
+		FileOutputFormat.setOutputCompressorClass(job, SnappyCodec.class);
 
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
@@ -76,7 +76,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 		public int compare(WritableComparable a, WritableComparable b) {
 			UserTimePair p1 = (UserTimePair) a;
 			UserTimePair p2 = (UserTimePair) b;
-			int cmp = p1.getMdn().compareTo(p2.getMdn());
+			int cmp = p1.getKey().compareTo(p2.getKey());
 			if (cmp != 0) {
 				return cmp;
 			}
@@ -95,7 +95,7 @@ public class UserEventTSDriver extends Configured implements Tool {
 		public int compare(WritableComparable a, WritableComparable b) {
 			UserTimePair p1 = (UserTimePair) a;
 			UserTimePair p2 = (UserTimePair) b;
-			return p1.getMdn().compareTo(p2.getMdn());
+			return p1.getKey().compareTo(p2.getKey());
 		}
 	}
 }
