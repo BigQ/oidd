@@ -16,6 +16,7 @@ public class UserEventTSMapper extends
 	@Override
 	protected void map(Text key, EventInfo value, Context context)
 			throws IOException, InterruptedException {
+		keyWithSalt.setLength(0);
 		// key pattern <trackDate>:<MDN>
 		keyWithSalt.append(value.getTrackDate().toString()).append(":")
 				.append(key.toString());
