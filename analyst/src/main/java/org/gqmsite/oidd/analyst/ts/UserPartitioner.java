@@ -1,4 +1,4 @@
-package org.gqmsite.oidd.analyst.extract.ts;
+package org.gqmsite.oidd.analyst.ts;
 
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.gqmsite.oidd.analyst.io.EventInfo;

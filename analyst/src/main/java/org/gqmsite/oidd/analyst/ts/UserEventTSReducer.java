@@ -1,4 +1,4 @@
-package org.gqmsite.oidd.analyst.extract.ts;
+package org.gqmsite.oidd.analyst.ts;
 
 import java.io.IOException;
 import java.util.ArrayList;
