@@ -70,4 +70,12 @@ public class LingerInfo implements Writable {
 		return sector;
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder().append(cell.toString()).append(",")
+				.append(sector.get()).append(",").append(trackDate.toString())
+				.append(",").append(lingering.get()).append(",")
+				.append(start.get()).append(",").append(end.get()).toString();
+	}
+
 }
