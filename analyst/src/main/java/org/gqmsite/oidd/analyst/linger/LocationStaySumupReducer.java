@@ -54,7 +54,7 @@ public class LocationStaySumupReducer extends
 			lastCell = cell;
 			lastSector = sector;
 			lastType = type;
-			lastStays = 0;
+			lastStays = summary;
 			measures.clear();
 		}
 	}
