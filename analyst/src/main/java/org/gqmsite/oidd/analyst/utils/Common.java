@@ -16,51 +16,52 @@ public class Common {
 	public static final int CYLIC_FULL_BONUS = 3600; // 1 hour
 	public static final int MAX_DIFFS = 86399;
 
-	public static final int NIGHT_LINGERING_PERIOD_END = 21600;
-	public static final int NIGHT_LINGERING_PERIOD_START = 72000;
-	public static final int DAY_LINGERING_PERIOD_START = 36000;
-	public static final int DAY_LINGERING_PERIOD_END = 57600;
+	public static final int LINGER_CURRENTNIGHT_END = 21600;
+	public static final int LINGER_NEXTNIGHT_START = 72000;
+	public static final int LINGER_CURRENTDAY_START = 36000;
+	public static final int LINGER_CURRENTDAY_END = 57600;
 
 	/**
-	 * 计算 0:00~6:00 以及 20:00~0:00之间的停留时间。单位秒
+	 * 计算 0:00~6:00 之间的停留时间。单位秒
 	 * 
 	 * @param start
 	 * @param end
 	 * @return
 	 */
-	public static int calculateNightLingeringPeriod(int start, int end) {
-		int period = 0;
-		if (start >= NIGHT_LINGERING_PERIOD_END
-				&& end <= NIGHT_LINGERING_PERIOD_START) {
-			return period;
+	public static int calculateCurrentNightLinger(int start, int end) {
+		if (start >= LINGER_CURRENTNIGHT_END) {
+			return 0;
 		}
-
-		if (start < NIGHT_LINGERING_PERIOD_END) {
-			period += (Math.min(NIGHT_LINGERING_PERIOD_END, end) - start);
-		}
-
-		if (end > NIGHT_LINGERING_PERIOD_START) {
-			period += (end - Math.max(start, DAY_LINGERING_PERIOD_START));
-		}
-		return period;
+		return Math.min(LINGER_CURRENTNIGHT_END, end) - start;
 	}
 
 	/**
-	 * 计算10:00~16:00之间的停留时间，单位秒
+	 * 计算 10:00~16:00 之间的停留时间。单位秒
 	 * 
 	 * @param start
 	 * @param end
 	 * @return
 	 */
-	public static int calculateDayLingeringPeriod(int start, int end) {
-		int period = 0;
-		if (end < DAY_LINGERING_PERIOD_START
-				|| start > DAY_LINGERING_PERIOD_END) {
-			return period;
+	public static int calculateCurrentDayLinger(int start, int end) {
+		if (end < LINGER_CURRENTDAY_START || start > LINGER_CURRENTDAY_END) {
+			return 0;
 		}
 
-		period = Math.min(end, DAY_LINGERING_PERIOD_END)
-				- Math.max(start, DAY_LINGERING_PERIOD_START);
-		return period;
+		return Math.min(end, LINGER_CURRENTDAY_END)
+				- Math.max(start, LINGER_CURRENTDAY_START);
+	}
+
+	/**
+	 * 计算 20:00~0:00 之间的停留时间。单位秒
+	 * 
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static int calculateNextNightLinger(int start, int end) {
+		if (end <= LINGER_NEXTNIGHT_START) {
+			return 0;
+		}
+		return end - Math.max(start, LINGER_NEXTNIGHT_START);
 	}
 }

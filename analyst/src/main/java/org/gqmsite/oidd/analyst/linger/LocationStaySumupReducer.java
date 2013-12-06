@@ -55,6 +55,7 @@ public class LocationStaySumupReducer extends
 			lastSector = sector;
 			lastType = type;
 			lastStays = 0;
+			measures.clear();
 		}
 	}
 
