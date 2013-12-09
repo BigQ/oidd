@@ -49,13 +49,15 @@ public class LocationStaySumupReducer extends
 				outValue.getStays().set(lastStays);
 				context.write(outKey, outValue);
 			}
-
+			// first, clear the container
+			measures.clear();
+			// second, mark new sample
 			lastMdn = mdn;
 			lastCell = cell;
 			lastSector = sector;
 			lastType = type;
 			lastStays = summary;
-			measures.clear();
+			measures.add(trackDate);
 		}
 	}
 
