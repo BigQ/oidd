@@ -8,7 +8,7 @@ public class LingerPairPartitioner extends Partitioner<LingerPair, IntWritable> 
 
 	@Override
 	public int getPartition(LingerPair key, IntWritable value, int numPartitions) {
-		return key.getMdn().hashCode() % numPartitions;
+		return Math.abs(key.getMdn().hashCode()) % numPartitions;
 	}
 
 }
