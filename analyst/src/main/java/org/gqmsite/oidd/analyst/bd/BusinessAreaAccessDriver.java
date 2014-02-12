@@ -2,6 +2,7 @@ package org.gqmsite.oidd.analyst.bd;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -34,6 +35,8 @@ public class BusinessAreaAccessDriver extends Configured implements Tool {
 		job.setMapperClass(BusinessAreaAccessMapper.class);
 		job.setReducerClass(BusinessAreaAccessReducer.class);
 		
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(NullWritable.class);
 		
