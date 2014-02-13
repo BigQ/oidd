@@ -88,7 +88,7 @@ public class BusinessAreaEventMapper extends
 
 			for (String line = reader.readLine(); line != null; line = reader
 					.readLine()) {
-				token = new StringTokenizer(reader.readLine(), ",");
+				token = new StringTokenizer(line, ",");
 				if (token.countTokens() == 3) {
 					String area = token.nextToken();
 					businessMap.put(
