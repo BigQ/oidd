@@ -21,6 +21,9 @@ public class BusinessAreaEventMapper extends
 
 	private HashMap<String, String> businessMap;
 	private final String BusinessMapFileURL = "/user/nmger/oidd/share/business.txt";
+	private final String BUSINESS_MAP_COUNTER = "BusinessMapFileCounter";
+	private final String BUSINESS_MAP_COUNTER_ITEMS = "Items";
+
 	private IntWritable linger = new IntWritable();
 
 	@Override
@@ -82,13 +85,20 @@ public class BusinessAreaEventMapper extends
 		StringTokenizer token;
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
 				fs.open(path)))) {
-			token = new StringTokenizer(reader.readLine(), ",");
-			if (token.countTokens() == 3) {
-				String area = token.nextToken();
-				businessMap.put(
-						generateBusinessMapKey(token.nextToken(),
-								token.nextToken()), area);
+
+			for (String line = reader.readLine(); line != null; line = reader
+					.readLine()) {
+				token = new StringTokenizer(reader.readLine(), ",");
+				if (token.countTokens() == 3) {
+					String area = token.nextToken();
+					businessMap.put(
+							generateBusinessMapKey(token.nextToken(),
+									token.nextToken()), area);
+					context.getCounter(BUSINESS_MAP_COUNTER,
+							BUSINESS_MAP_COUNTER_ITEMS).increment(1);
+				}
 			}
+
 		}
 	}
 
