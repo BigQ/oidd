@@ -16,6 +16,13 @@
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-client</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.oracle</groupId>
+  			<artifactId>ojdbc</artifactId>
+  			<version>11.2.0</version>
+  			<scope>runtime</scope>
+		</dependency>
 		<!-- BEGIN Log Configuration -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

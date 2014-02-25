@@ -38,12 +38,12 @@
             <arg>--password</arg>
             <arg>${OiddDBPwd}</arg>
             <arg>--query</arg>
-            <arg>"select cellcode,ci,pc,imsi,mdn,esn,to_char(happentime,'yyyy-mm-dd hh24:mi:ss') happentime,event, peerno from t_event_log where happentime>=sysdate-${diff}/24 and happentime<sysdate-(${diff}+1)/24  and \$CONDITIONS"</arg>
+            <arg><![CDATA[ select cellcode,ci,pc,imsi,mdn,esn,to_char(happentime,'yyyy-mm-dd hh24:mi:ss') happentime,event, peerno from t_event_log where happentime >= sysdate-${diff}/24 and happentime < sysdate-(${diff}+1)/24  and $CONDITIONS ]]></arg>
             <arg>--target-dir</arg>
             <arg>${nameNode}/user/${wf:user()}/${connectorRoot}/output-data/${outputDir}</arg>
             <arg>-m</arg>
             <arg>1</arg>
-        <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+        </sqoop>
         <ok to="end"/>
         <error to="fail"/>
     </action>
