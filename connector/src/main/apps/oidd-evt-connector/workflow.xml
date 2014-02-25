@@ -16,13 +16,13 @@
   limitations under the License.
 -->
 <workflow-app xmlns="uri:oozie:workflow:0.2" name="oidd-event-connector-wf">
-    <start to="sqoop-node"/>
-    <action name="sqoop-node">
+    <start to="extract-node"/>
+    <action name="extract-node">
         <sqoop xmlns="uri:oozie:sqoop-action:0.2">
             <job-tracker>${jobTracker}</job-tracker>
             <name-node>${nameNode}</name-node>
             <prepare>
-                <delete path="${nameNode}/user/${wf:user()}/${connectorRoot}/output-data/${outputDir}"/>
+                <delete path="${nameNode}/user/${wf:user()}/${connectorRoot}/output/${outputDir}"/>
             </prepare>
             <configuration>
                 <property>
@@ -38,15 +38,52 @@
             <arg>--password</arg>
             <arg>${OiddDBPwd}</arg>
             <arg>--query</arg>
-            <arg><![CDATA[ select cellcode,ci,pc,imsi,mdn,esn,to_char(happentime,'yyyy-mm-dd hh24:mi:ss') happentime,event, peerno from t_event_log where happentime >= sysdate-${diff}/24 and happentime < sysdate-(${diff}+1)/24  and $CONDITIONS ]]></arg>
+            <arg><![CDATA[ select cellcode,ci,pc,imsi,mdn,esn,to_char(happentime,'yyyy-mm-dd hh24:mi:ss') happentime,event, peerno from t_event_log where happentime>=to_date('${StartDate}${StartHour}','yyyymmddhh24') and happentime<to_date('${StartDate}${StartHour}','yyyymmddhh24')+1/24 and $CONDITIONS ]]></arg>
+            <arg>--input-null-string</arg>
+            <arg></arg>
             <arg>--target-dir</arg>
-            <arg>${nameNode}/user/${wf:user()}/${connectorRoot}/output-data/${outputDir}</arg>
+            <arg>${nameNode}/user/${wf:user()}/${connectorRoot}/output/${outputDir}</arg>
             <arg>-m</arg>
             <arg>1</arg>
         </sqoop>
         <ok to="end"/>
         <error to="fail"/>
     </action>
+	<action>
+		<map-reduce>
+		<job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${nameNode}/user/${wf:user()}/test/${StartDate}/${StartHour}"/>
+            </prepare>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+                <property>
+                    <name>mapred.mapper.class</name>
+                    <value>org.gqmsite.oidd.connector.ai.AiEventLoadMapper</value>
+                </property>
+                <property>
+                    <name>mapred.reducer.class</name>
+                    <value></value>
+                </property>
+                <property>
+                    <name>mapred.map.tasks</name>
+                    <value>1</value>
+                </property>
+                <property>
+                    <name>mapred.input.dir</name>
+                    <value>/user/${wf:user()}/${examplesRoot}/input-data/text</value>
+                </property>
+                <property>
+                    <name>mapred.output.dir</name>
+                    <value>/user/${wf:user()}/${examplesRoot}/output-data/${outputDir}</value>
+                </property>
+            </configuration>
+		</map-reduce>
+	</action>
     <kill name="fail">
         <message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
     </kill>

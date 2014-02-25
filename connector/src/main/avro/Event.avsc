@@ -1,0 +1,14 @@
+{
+	"type": "record",
+	"name": "org.gqmsite.oidd.connector.schema.Event",
+	"doc": "A event from user mobile phone.",
+	"fields": [
+		{"name": "mdn", "type": "string"},
+		{"name": "imsi", "type": "string"},
+		{"name": "trackDate", "type": "string"},
+		{"name": "event", "type": "int"},
+		{"name": "cell", "type": "string"},
+		{"name": "sector", "type": "string"},
+		{"name": "peer", "type": "string"}
+	]
+}
