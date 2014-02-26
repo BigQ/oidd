@@ -36,8 +36,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.hadoop</groupId>
-  				<artifactId>hadoop-mapreduce-client-common</artifactId>
-  				<version>${hadoop.version}</version>
+				<artifactId>hadoop-mapreduce-client-common</artifactId>
+				<version>${hadoop.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.avro</groupId>
@@ -163,6 +163,11 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.8</version>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
