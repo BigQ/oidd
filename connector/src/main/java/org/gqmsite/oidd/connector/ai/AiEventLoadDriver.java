@@ -1,20 +1,20 @@
 package org.gqmsite.oidd.connector.ai;
 
-import org.apache.avro.file.CodecFactory;
-import org.apache.avro.mapreduce.AvroJob;
-import org.apache.avro.mapreduce.AvroKeyOutputFormat;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.gqmsite.oidd.connector.io.EventInfo;
-import org.gqmsite.oidd.connector.schema.Event;
+
 
 public class AiEventLoadDriver extends Configured implements Tool {
 
@@ -37,23 +37,23 @@ public class AiEventLoadDriver extends Configured implements Tool {
 		job.setJarByClass(getClass());
 
 		job.setInputFormatClass(TextInputFormat.class);
-		LazyOutputFormat.setOutputFormatClass(job, AvroKeyOutputFormat.class);
+		LazyOutputFormat.setOutputFormatClass(job, SequenceFileOutputFormat.class);
 		
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(EventInfo.class);
+
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(EventInfo.class);
 		
-		AvroJob.setOutputKeySchema(job, Event.SCHEMA$);
-		job.setOutputKeyClass(Event.class);
-		job.setOutputValueClass(NullWritable.class);
-		
-		AvroKeyOutputFormat.setCompressOutput(job, true);
-		job.getConfiguration().set(AvroJob.CONF_OUTPUT_CODEC, CodecFactory.snappyCodec().toString());
+		// set compress option
+		SequenceFileOutputFormat.setOutputCompressionType(job, CompressionType.BLOCK);
+		FileOutputFormat.setCompressOutput(job, true);
+		FileOutputFormat.setOutputCompressorClass(job, SnappyCodec.class);
 		
 		job.setMapperClass(AiEventLoadMapper.class);
-		job.setReducerClass(AiEventLoadReducer.class);
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
-		AvroKeyOutputFormat.setOutputPath(job, new Path(args[1]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
