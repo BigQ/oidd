@@ -90,13 +90,13 @@ public class EventInfo implements Writable {
 	
 	public EventInfo copy(){
 		EventInfo info = new EventInfo();
-		info.getImsi().set(imsi.getBytes());
-		info.getMdn().set(mdn.getBytes());
-		info.getTrackDate().set(trackDate.getBytes());
-		info.getCell().set(cell.getBytes());
+		info.getImsi().set(imsi.copyBytes());
+		info.getMdn().set(mdn.copyBytes());
+		info.getTrackDate().set(trackDate.copyBytes());
+		info.getCell().set(cell.copyBytes());
 		info.getSector().set(sector.get());
 		info.getEvent().set(event.get());
-		info.getPeer().set(peer.getBytes());
+		info.getPeer().set(peer.copyBytes());
 		return info;
 	}
 }
