@@ -17,7 +17,7 @@ public class AiEventParser {
 	 */
 	private int event;
 	private String cell;
-	private String sector;
+	private int sector;
 	private String peer;
 	private boolean isParsed;
 
@@ -26,7 +26,7 @@ public class AiEventParser {
 
 		if (token.countTokens() == 9) {
 			cell = token.nextToken();
-			sector = token.nextToken();
+			sector = Integer.parseInt(token.nextToken());
 			token.nextToken();
 			imsi = token.nextToken();
 			mdn = token.nextToken();
@@ -36,7 +36,7 @@ public class AiEventParser {
 			peer = token.nextToken();
 			if (peer.equals(EVDO_ONLINE_FLAG)) {
 				event = EVDO_ONLINE_EVENT;
-			}else if (peer.equals(NULL)) {
+			} else if (peer.equals(NULL)) {
 				peer = "";
 			}
 			isParsed = true;
@@ -69,7 +69,7 @@ public class AiEventParser {
 		return cell;
 	}
 
-	public String getSector() {
+	public int getSector() {
 		return sector;
 	}
 

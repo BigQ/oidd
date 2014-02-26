@@ -2,18 +2,17 @@ package org.gqmsite.oidd.connector.ai;
 
 import java.io.IOException;
 
-import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.gqmsite.oidd.connector.schema.Event;
+import org.gqmsite.oidd.connector.io.EventInfo;
 
 public class AiEventLoadMapper extends
-		Mapper<LongWritable, Text, AvroKey<Event>, NullWritable> {
+		Mapper<LongWritable, Text, Text, EventInfo> {
 
 	private AiEventParser parser = new AiEventParser();
-	private Event record = new Event();
+	private EventInfo record = new EventInfo();
+	private Text mapOutputKey = new Text();
 
 	@Override
 	protected void map(LongWritable key, Text value, Context context)
@@ -21,15 +20,16 @@ public class AiEventLoadMapper extends
 		parser.parse(value.toString());
 
 		if (parser.isParsed()) {
-			record.setImsi(parser.getImsi());
-			record.setMdn(parser.getMdn());
-			record.setTrackDate(parser.getTrackDate());
-			record.setEvent(parser.getEvent());
-			record.setCell(parser.getCell());
-			record.setSector(parser.getSector());
-			record.setPeer(parser.getPeer());
+			record.getImsi().set(parser.getImsi());
+			record.getMdn().set(parser.getMdn());
+			record.getTrackDate().set(parser.getTrackDate());
+			record.getEvent().set(parser.getEvent());
+			record.getCell().set(parser.getCell());
+			record.getSector().set(parser.getSector());
+			record.getPeer().set(parser.getPeer());
 
-			context.write(new AvroKey<>(record), NullWritable.get());
+			mapOutputKey.set(parser.getTrackDate());
+			context.write(mapOutputKey, record);
 		}
 	}
 
