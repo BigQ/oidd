@@ -1,5 +1,6 @@
 package org.gqmsite.oidd.connector.ai;
 
+import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyOutputFormat;
 import org.apache.hadoop.conf.Configured;
@@ -41,6 +42,7 @@ public class AiEventLoadDriver extends Configured implements Tool {
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(EventInfo.class);
 		AvroJob.setOutputKeySchema(job, Event.SCHEMA$);
+		job.setOutputKeyClass(AvroKey.class);
 		job.setOutputValueClass(NullWritable.class);
 		AvroKeyOutputFormat.setCompressOutput(job, true);
 		
