@@ -71,6 +71,7 @@
 		<!-- END TEST -->
 	</dependencies>
 	<build>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.apache.avro</groupId>
@@ -79,7 +80,6 @@
 					<execution>
 						<phase>generate-sources</phase>
 						<goals>
-							<goal>protocol</goal>
 							<goal>schema</goal>
 						</goals>
 						<configuration>
@@ -95,13 +95,12 @@
 				<executions>
 					<execution>
 						<id>add-source</id>
-						<phase>generate-sources</phase>
+						<phase>process-sources</phase>
 						<goals>
 							<goal>add-source</goal>
 						</goals>
 						<configuration>
 							<sources>
-								<source>${project.basedir}/src/main/java</source>
 								<source>${project.basedir}/target/generated-srouces/avro</source>
 							</sources>
 						</configuration>
