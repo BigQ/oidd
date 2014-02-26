@@ -87,5 +87,16 @@ public class EventInfo implements Writable {
 				.append(",").append(sector.toString()).append(",")
 				.append(peer.toString()).toString();
 	}
-
+	
+	public EventInfo copy(){
+		EventInfo info = new EventInfo();
+		info.getImsi().set(imsi.getBytes());
+		info.getMdn().set(mdn.getBytes());
+		info.getTrackDate().set(trackDate.getBytes());
+		info.getCell().set(cell.getBytes());
+		info.getSector().set(sector.get());
+		info.getEvent().set(event.get());
+		info.getPeer().set(peer.getBytes());
+		return info;
+	}
 }
