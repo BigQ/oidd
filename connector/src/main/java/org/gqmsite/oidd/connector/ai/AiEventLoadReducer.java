@@ -12,22 +12,24 @@ import org.gqmsite.oidd.connector.schema.Event;
 public class AiEventLoadReducer extends
 		Reducer<Text, EventInfo, AvroKey<Event>, NullWritable> {
 
-	private Event datum = new Event();
+	private AvroKey<Event> outputKey = new AvroKey<>();
 
 	@Override
 	protected void reduce(Text key, Iterable<EventInfo> values, Context context)
 			throws IOException, InterruptedException {
 		for (EventInfo info : values) {
-			datum.setImsi(info.getImsi().toString());
-			datum.setMdn(info.getMdn().toString());
-			datum.setTrackDate(info.getTrackDate().toString());
-			datum.setEvent(info.getEvent().get());
-			datum.setCell(info.getCell().toString());
-			datum.setSector(info.getSector().toString());
-			datum.setPeer(info.getPeer().toString());
-
-			context.write(new AvroKey<>(datum), NullWritable.get());
+			outputKey.datum(convert(info));
+			context.write(outputKey, NullWritable.get());
 		}
 	}
 
+	private Event convert(EventInfo info) {
+		return Event.newBuilder().setImsi(info.getImsi().toString())
+				.setMdn(info.getMdn().toString())
+				.setTrackDate(info.getTrackDate().toString())
+				.setEvent(info.getEvent().get())
+				.setPeer(info.getPeer().toString())
+				.setCell(info.getCell().toString())
+				.setSector(info.getSector().toString()).build();
+	}
 }
