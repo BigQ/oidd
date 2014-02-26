@@ -1,4 +1,4 @@
-package org.gqmsite.oidd.connector.ai;
+package com.sanss.oidd.connector.ai;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;

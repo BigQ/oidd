@@ -1,4 +1,4 @@
-package org.gqmsite.oidd.connector.ai;
+package com.sanss.oidd.connector.ai;
 
 import java.io.IOException;
 
