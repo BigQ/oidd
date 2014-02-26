@@ -80,22 +80,23 @@
 					<execution>
 						<phase>generate-sources</phase>
 						<goals>
+							<goal>protocol</goal>
 							<goal>schema</goal>
 						</goals>
 						<configuration>
 							<sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
-							<!-- outputDirectory>${project.basedir}/src/main/java/</outputDirectory -->
+							<outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!--  plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>add-source</id>
-						<phase>process-sources</phase>
+						<phase>generate-sources</phase>
 						<goals>
 							<goal>add-source</goal>
 						</goals>
@@ -106,7 +107,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
