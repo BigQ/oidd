@@ -4,6 +4,7 @@ import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyOutputFormat;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.jobhistory.Event;
@@ -36,6 +37,9 @@ public class AiEventLoadDriver extends Configured implements Tool {
 		job.setMapperClass(AiEventLoadMapper.class);
 		AvroJob.setMapOutputKeySchema(job, Event.SCHEMA$);
 		AvroJob.setOutputKeySchema(job, Event.SCHEMA$);
+		job.setMapOutputValueClass(NullWritable.class);
+		job.setOutputValueClass(NullWritable.class);
+		
 		LazyOutputFormat.setOutputFormatClass(job, AvroKeyOutputFormat.class);
 		
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
