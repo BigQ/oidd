@@ -1,4 +1,4 @@
-package org.gqmsite.oidd.connector.io;
+package com.sanss.oidd.common.io;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -76,6 +76,16 @@ public class EventInfo implements Writable {
 
 	public IntWritable getSector() {
 		return sector;
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder().append(mdn.toString()).append(",")
+				.append(imsi.toString()).append(",")
+				.append(trackDate.toString()).append(",")
+				.append(event.toString()).append(",").append(cell.toString())
+				.append(",").append(sector.toString()).append(",")
+				.append(peer.toString()).toString();
 	}
 
 }

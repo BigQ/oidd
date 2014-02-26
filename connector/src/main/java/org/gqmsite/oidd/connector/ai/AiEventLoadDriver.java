@@ -13,7 +13,8 @@ import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.gqmsite.oidd.connector.io.EventInfo;
+
+import com.sanss.oidd.common.io.EventInfo;
 
 
 public class AiEventLoadDriver extends Configured implements Tool {

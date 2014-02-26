@@ -5,7 +5,8 @@ import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.gqmsite.oidd.connector.io.EventInfo;
+
+import com.sanss.oidd.common.io.EventInfo;
 
 public class AiEventLoadMapper extends
 		Mapper<LongWritable, Text, Text, EventInfo> {
