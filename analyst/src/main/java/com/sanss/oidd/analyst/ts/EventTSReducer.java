@@ -26,7 +26,7 @@ public class EventTSReducer extends
 			Context context) throws IOException, InterruptedException {
 		if (lastImsi == null) {// first invoke
 			lastImsi = key.getUser().toString();
-		} else if (lastImsi.equals(key.getUser().toString())) {
+		} else if (!lastImsi.equals(key.getUser().toString())) {
 			// flush the container
 			flushData(context);
 			// clean the container
