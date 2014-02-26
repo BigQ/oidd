@@ -9,7 +9,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.gqmsite.oidd.connector.schema.Event;
 
-
 public class AiEventLoadMapper extends
 		Mapper<LongWritable, Text, AvroKey<Event>, NullWritable> {
 
