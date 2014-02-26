@@ -29,7 +29,7 @@ public class AiEventLoadMapper extends
 			record.getSector().set(parser.getSector());
 			record.getPeer().set(parser.getPeer());
 
-			mapOutputKey.set(parser.getMdn());
+			mapOutputKey.set(parser.getTrackDate().substring(11));
 			context.write(mapOutputKey, record);
 		}
 	}
