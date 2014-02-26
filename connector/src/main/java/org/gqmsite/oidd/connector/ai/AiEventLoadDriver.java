@@ -43,6 +43,9 @@ public class AiEventLoadDriver extends Configured implements Tool {
 		AvroJob.setOutputKeySchema(job, Event.SCHEMA$);
 		job.setOutputValueClass(NullWritable.class);
 		AvroKeyOutputFormat.setCompressOutput(job, true);
+		
+		job.setMapperClass(AiEventLoadMapper.class);
+		job.setReducerClass(AiEventLoadReducer.class);
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
