@@ -22,28 +22,31 @@ public class UserLocStateMapper extends
 		EventInfo info;
 		String lastCell = null;
 		int lastSector = 0;
-		if (value.get() != null) {
-			for (int i = 0; i < value.get().length; i++) {
-				info = (EventInfo) (value.get()[i]);
 
-				if (i == 0) { // first invoke
-					lastCell = info.getCell().toString();
-					lastSector = info.getSector().get();
-				}
+		for (int i = 0; i < value.get().length; i++) {
+			info = (EventInfo) (value.get()[i]);
 
-				if (info.getMdn().toString().equals(UNKNOWN_MDN)) {
-					context.getCounter(SKIP_RECORD_COUNTER_GROUP,
-							SKIP_RECORD_ILL_COUNTER).increment(1);
-				} else if (i > 0 && info.getCell().toString().equals(lastCell)
+			if (info.getMdn().toString().equals(UNKNOWN_MDN)) {
+				// skip illegal MDN
+				context.getCounter(SKIP_RECORD_COUNTER_GROUP,
+						SKIP_RECORD_ILL_COUNTER).increment(1);
+			} else {
+				if (lastCell != null
+						&& info.getCell().toString().equals(lastCell)
 						&& info.getSector().get() == lastSector) {
+					// skip duplicated items
 					context.getCounter(SKIP_RECORD_COUNTER_GROUP,
 							SKIP_RECORD_DUP_COUNTER).increment(1);
 				} else {
 					context.write(info.getMdn(), info);
 				}
+
+				lastCell = info.getCell().toString();
+				lastSector = info.getSector().get();
 			}
 
 		}
+
 	}
 
 }
