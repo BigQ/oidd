@@ -6,17 +6,18 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+import com.sanss.oidd.analyst.utils.Common;
 import com.sanss.oidd.common.io.EventInfo;
+import com.sanss.oidd.common.io.UserTimePair;
 
 public class UserLocStateReducer extends
-		Reducer<Text, EventInfo, Text, NullWritable> {
+		Reducer<UserTimePair, EventInfo, Text, NullWritable> {
 
-	protected static final int CONS_POWER_OFF = 2;
 	protected Text outputKey = new Text();
 
 	@Override
-	protected void reduce(Text key, Iterable<EventInfo> values, Context context)
-			throws IOException, InterruptedException {
+	protected void reduce(UserTimePair key, Iterable<EventInfo> values,
+			Context context) throws IOException, InterruptedException {
 		for (EventInfo info : values) {
 			outputKey.set(formatter(info));
 			context.write(outputKey, NullWritable.get());
@@ -28,7 +29,7 @@ public class UserLocStateReducer extends
 				.append(info.getTrackDate().toString()).append(",")
 				.append(info.getCell().toString()).append(",")
 				.append(info.getSector().toString()).append(",")
-				.append(info.getEvent().get() != CONS_POWER_OFF ? 1 : 0)
+				.append(Common.convertEvent2State(info.getEvent().get()))
 				.toString();
 	}
 }

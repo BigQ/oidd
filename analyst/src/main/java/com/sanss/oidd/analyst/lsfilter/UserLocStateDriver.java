@@ -15,6 +15,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.sanss.oidd.common.io.EventInfo;
+import com.sanss.oidd.common.io.UserTimeGroupComparator;
+import com.sanss.oidd.common.io.UserTimeKeyComparator;
 
 public class UserLocStateDriver extends Configured implements Tool {
 
@@ -38,6 +40,10 @@ public class UserLocStateDriver extends Configured implements Tool {
 		// set map-reduce
 		job.setMapperClass(UserLocStateMapper.class);
 		job.setReducerClass(UserLocStateReducer.class);
+
+		// set sort order
+		job.setSortComparatorClass(UserTimeKeyComparator.class);
+		job.setGroupingComparatorClass(UserTimeGroupComparator.class);
 
 		// set input output
 		job.setInputFormatClass(SequenceFileInputFormat.class);

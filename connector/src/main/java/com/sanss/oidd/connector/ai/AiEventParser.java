@@ -13,7 +13,7 @@ public class AiEventParser {
 	private String trackDate;
 	/**
 	 * 1: Power On 2: Power Off 3: Cylic Location Update 4: Location Update 5:
-	 * Shift 6: Calling 7: Called 31: SMS Send 32: SMS Receive 8: Evdo Online *
+	 * Shift 6: Calling 7: Called 31: SMS Send 32: SMS Receive 8: x1 Online *
 	 */
 	private int event;
 	private String cell;

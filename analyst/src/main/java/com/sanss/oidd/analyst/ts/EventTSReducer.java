@@ -24,14 +24,16 @@ public class EventTSReducer extends
 	@Override
 	protected void reduce(UserTimePair key, Iterable<EventInfo> values,
 			Context context) throws IOException, InterruptedException {
-		if (lastImsi == null) {// first invoke
+		
+		if (lastImsi == null) {
+			// first invoke
 			lastImsi = key.getUser().toString();
 		} else if (!lastImsi.equals(key.getUser().toString())) {
 			// flush the container
 			flushData(context);
 			// clean the container
 			container.clear();
-			// mark the new Imsi
+			// mark the new IMSI
 			lastImsi = key.getUser().toString();
 		}
 
@@ -48,6 +50,13 @@ public class EventTSReducer extends
 		}
 	}
 
+	/**
+	 * flush data to IO
+	 * 
+	 * @param context
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private void flushData(Context context) throws IOException,
 			InterruptedException {
 		Writable[] arrtemp = new Writable[container.size()];
