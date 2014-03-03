@@ -56,14 +56,16 @@ public class LocStayCalcMapper extends
 				countEventInStay(event, stay);
 			} else {
 				// adjust the current diffs
-				// adjust when the first event in a stay is CYLICLOCATIONUPDATE
-				if (event == C_EVENT_CYLICLOCATIONUPDATE
+				if (lastLoc == null) {
+					// adjust when the first event in a day
+					diffs = Math.max(diffs - C_V_EVENT_CYLIC_BONUS, 0);
+				} else if (event == C_EVENT_CYLICLOCATIONUPDATE
 						&& !loc.equals(lastLoc)) {
+					// adjust when the first event in a stay is
+					// CYLICLOCATIONUPDATE
 					if (diffs - lastDiffs > C_V_EVENT_MIN_INTERVAL) {
-						diffs = diffs
-								- Math.min(diffs - lastDiffs
-										- C_V_EVENT_MIN_INTERVAL,
-										C_V_EVENT_CYLIC_BONUS);
+						diffs = Math.max(diffs - C_V_EVENT_CYLIC_BONUS,
+								lastDiffs + C_V_EVENT_MIN_INTERVAL);
 					}
 				}
 
@@ -98,7 +100,7 @@ public class LocStayCalcMapper extends
 			diffs = Math.min(diffs + C_V_EVENT_MAX_INTERVAL,
 					C_V_SECONDSINDAY_MAX);
 
-			stay.getSpan().set(diffs - lastDiffs);
+			stay.getSpan().set(stay.getSpan().get() + diffs - lastDiffs);
 			// add the last stay to the container
 			container.add(stay);
 		}
