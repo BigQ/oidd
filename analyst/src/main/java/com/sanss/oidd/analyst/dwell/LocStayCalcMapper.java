@@ -49,6 +49,8 @@ public class LocStayCalcMapper extends
 
 			if (lastLoc != null && loc.equals(lastLoc)) {
 				// do merge
+				// update the span time of the stay
+				stay.getSpan().set(stay.getSpan().get() + Math.min(diffs - lastDiffs, C_V_CYLIC_BONUS_MAX));
 				// count the event in each stay
 				countEventInStay(event, stay);
 			} else {
@@ -62,7 +64,8 @@ public class LocStayCalcMapper extends
 				}
 
 				if (stay != null) {
-					stay.getSpan().set(diffs - lastDiffs);
+					// update the span time of the stay
+					stay.getSpan().set(stay.getSpan().get() + Math.min(diffs - lastDiffs, C_V_CYLIC_BONUS_MAX));
 					// add the last stay to the container
 					container.add(stay);
 				}
@@ -76,10 +79,11 @@ public class LocStayCalcMapper extends
 				// count the event in each stay
 				countEventInStay(event, stay);
 
-				// update the temperate value
+				// update the last Location
 				lastLoc = loc;
-				lastDiffs = diffs;
 			}
+			// update the last diffs
+			lastDiffs = diffs;
 		}
 
 		if (stay != null) {

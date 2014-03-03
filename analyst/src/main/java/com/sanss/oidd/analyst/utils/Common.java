@@ -56,6 +56,7 @@ public class Common {
 	
 	public static final int C_V_CYLIC_BONUS_MIN = 300; // 5mins
 	public static final int C_V_CYLIC_BONUS_FULL = 1800; // 30mins
+	public static final int C_V_CYLIC_BONUS_MAX = 3600; // 60mins
 	public static final int C_V_SECONDSINDAY_MAX = 86399;
 
 	/**
