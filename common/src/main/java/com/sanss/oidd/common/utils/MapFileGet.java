@@ -1,4 +1,4 @@
-package com.sanss.oidd.analyst.utils;
+package com.sanss.oidd.common.utils;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
