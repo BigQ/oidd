@@ -49,7 +49,7 @@ public class LocStayCalcMapper extends
 
 			if (lastLoc != null && loc.equals(lastLoc)
 					&& diffs - lastDiffs <= C_V_EVENT_MAX_INTERVAL) {
-				// do merge
+				// do merge when it is the same stay
 				// merge the span time of the stay
 				stay.getSpan().set(stay.getSpan().get() + (diffs - lastDiffs));
 				// count the event in each stay
@@ -68,7 +68,7 @@ public class LocStayCalcMapper extends
 								lastDiffs + C_V_EVENT_MIN_INTERVAL);
 					}
 				}
-
+				// add the last stay to the container
 				if (stay != null) {
 					// update the span time of the stay
 					stay.getSpan().set(
@@ -79,6 +79,7 @@ public class LocStayCalcMapper extends
 					container.add(stay);
 				}
 
+				// create a new stay
 				stay = new LocStayInfo();
 				stay.getLoc().set(loc);
 				stay.getDate().set(
@@ -87,10 +88,9 @@ public class LocStayCalcMapper extends
 				stay.getBegin().set(diffs);
 				// count the event in each stay
 				countEventInStay(event, stay);
-
-				// update the last Location
-				lastLoc = loc;
 			}
+			// update the last Location
+			lastLoc = loc;
 			// update the last diffs
 			lastDiffs = diffs;
 		}
