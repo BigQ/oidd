@@ -26,20 +26,23 @@ public class DwellGroupMapper extends
 
 		LocStayInfo info1, info2, info3, info4;
 		DwellItem item = null;
-
-		for (Writable w : value.get()) {
-			item = new DwellItem();
-			copyLocStay2DwellItem(item, (LocStayInfo) w);
-			container.add(item);
-		}
-
-		Writable[] array = value.get();
 		int index = 0;
 		int begin = 0;
+
+		Writable[] array = value.get();
+
+		// initial the container
+		for (int i = 0; i < array.length; i++) {
+			if (container.size() < i + 1) {
+				container.add(new DwellItem());
+			}
+			copyLocStay2DwellItem(container.get(i), (LocStayInfo) array[i]);
+		}
+
 		while (index < array.length) {
 
 			// find the ABAB... pattern
-			if (index < array.length - 3) {
+			if (index + 3 < array.length) {
 				info1 = (LocStayInfo) array[index];
 				info2 = (LocStayInfo) array[index + 1];
 				info3 = (LocStayInfo) array[index + 2];
@@ -106,8 +109,8 @@ public class DwellGroupMapper extends
 					mapOutputValue.getGroup().set(arr);
 					context.write(key, mapOutputValue);
 					continue;
-				}//:end if, check the ABAB pattern
-			}//:end if, check enough items for ABAB pattern
+				}// :end if, check the ABAB pattern
+			}// :end if, check enough items for ABAB pattern
 
 			info1 = (LocStayInfo) array[index];
 			if (info1.getSpan().get() < Common.C_V_EVENT_CYCLE_FULL) {
@@ -136,7 +139,7 @@ public class DwellGroupMapper extends
 				Writable[] arr = new Writable[index - begin];
 				for (int i = begin; i < index; i++) {
 					item = container.get(i);
-					arr[i-begin] = item;
+					arr[i - begin] = item;
 					mapOutputValue.getEnd().set(
 							mapOutputValue.getEnd().get()
 									+ item.getSpan().get());
@@ -162,7 +165,7 @@ public class DwellGroupMapper extends
 
 	private void copyLocStay2DwellItem(final DwellItem item,
 			final LocStayInfo info) {
-		item.getLoc().set(info.getLoc().copyBytes());
+		item.getLoc().set(info.getLoc().toString());
 		item.getSpan().set(info.getSpan().get());
 		item.getC0().set(info.getC0().get());
 		item.getC1().set(info.getC1().get());
