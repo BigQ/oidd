@@ -56,6 +56,7 @@ public class Common {
 	
 	public static final int C_V_EVENT_MIN_INTERVAL = 300; // 5mins
 	public static final int C_V_EVENT_CYLIC_BONUS = 1800; // 30mins
+	public static final int C_V_EVENT_CYCLE_FULL = 3600; // 60mins
 	public static final int C_V_EVENT_MAX_INTERVAL = 5400; // 90mins
 	public static final int C_V_SECONDSINDAY_MAX = 86399;
 
