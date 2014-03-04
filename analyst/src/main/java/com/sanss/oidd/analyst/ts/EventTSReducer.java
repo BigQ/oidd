@@ -19,22 +19,22 @@ public class EventTSReducer extends
 
 	private EventTSArray array = new EventTSArray();
 	private Text outputKey = new Text();
-	private String lastImsi = null;
+	private String lastUser = null;
 
 	@Override
 	protected void reduce(UserTimePair key, Iterable<EventInfo> values,
 			Context context) throws IOException, InterruptedException {
-		
-		if (lastImsi == null) {
+
+		if (lastUser == null) {
 			// first invoke
-			lastImsi = key.getUser().toString();
-		} else if (!lastImsi.equals(key.getUser().toString())) {
+			lastUser = key.getUser().toString();
+		} else if (!lastUser.equals(key.getUser().toString())) {
 			// flush the container
 			flushData(context);
 			// clean the container
 			container.clear();
 			// mark the new IMSI
-			lastImsi = key.getUser().toString();
+			lastUser = key.getUser().toString();
 		}
 
 		for (EventInfo info : values) {
@@ -45,7 +45,7 @@ public class EventTSReducer extends
 	@Override
 	protected void cleanup(Context context) throws IOException,
 			InterruptedException {
-		if (lastImsi != null) {
+		if (lastUser != null) {
 			flushData(context);
 		}
 	}
@@ -61,7 +61,7 @@ public class EventTSReducer extends
 			InterruptedException {
 		Writable[] arrtemp = new Writable[container.size()];
 		array.set(container.toArray(arrtemp));
-		outputKey.set(lastImsi);
+		outputKey.set(lastUser);
 		context.write(outputKey, array);
 	}
 }

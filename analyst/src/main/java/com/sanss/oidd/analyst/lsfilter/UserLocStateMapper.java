@@ -20,7 +20,6 @@ import com.sanss.oidd.common.io.EventTSArray;
 public class UserLocStateMapper extends
 		Mapper<Text, EventTSArray, Text, EventTSArray> {
 
-	private Text mapOutputKey = new Text();
 	private EventTSArray mapOutputValue = new EventTSArray();
 	private final List<EventInfo> container = new ArrayList<>();
 
@@ -35,7 +34,7 @@ public class UserLocStateMapper extends
 		for (Writable w : value.get()) {
 			info = (EventInfo) w;
 
-			if (info.getMdn().toString().length()!=C_V_ILLEGAL_MDN_LEN) {
+			if (info.getMdn().toString().length() != C_V_ILLEGAL_MDN_LEN) {
 				// skip illegal MDN
 				context.getCounter(C_COUNTER_G_SKIPRECORD,
 						C_COUNTER_SKIPRECORD_ILLMDN).increment(1);
@@ -49,7 +48,7 @@ public class UserLocStateMapper extends
 							C_COUNTER_SKIPRECORD_DUP).increment(1);
 				} else {
 					// set the map output key and value
-					mapOutputKey.set(info.getMdn().toString());
+					// mapOutputKey.set(info.getMdn().toString());
 					container.add(info);
 				}
 
@@ -60,11 +59,11 @@ public class UserLocStateMapper extends
 			}
 
 		}
-		
-		if(container.size() > 0){
+
+		if (container.size() > 0) {
 			Writable[] arr = new Writable[container.size()];
 			mapOutputValue.set(container.toArray(arr));
-			context.write(mapOutputKey, mapOutputValue);
+			context.write(key, mapOutputValue);
 			container.clear();
 		}
 	}
