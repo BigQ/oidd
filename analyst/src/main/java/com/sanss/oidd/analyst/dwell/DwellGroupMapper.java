@@ -136,7 +136,7 @@ public class DwellGroupMapper extends
 				Writable[] arr = new Writable[index - begin];
 				for (int i = begin; i < index; i++) {
 					item = container.get(i);
-					arr[i] = item;
+					arr[i-begin] = item;
 					mapOutputValue.getEnd().set(
 							mapOutputValue.getEnd().get()
 									+ item.getSpan().get());
