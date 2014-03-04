@@ -4,23 +4,28 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import com.sanss.oidd.analyst.utils.Common;
 import com.sanss.oidd.common.io.EventInfo;
-import com.sanss.oidd.common.io.UserTimePair;
+import com.sanss.oidd.common.io.EventTSArray;
 
 public class UserLocStateReducer extends
-		Reducer<UserTimePair, EventInfo, Text, NullWritable> {
+		Reducer<Text, EventTSArray, Text, NullWritable> {
 
 	protected Text outputKey = new Text();
 
 	@Override
-	protected void reduce(UserTimePair key, Iterable<EventInfo> values,
+	protected void reduce(Text key, Iterable<EventTSArray> values,
 			Context context) throws IOException, InterruptedException {
-		for (EventInfo info : values) {
-			outputKey.set(formatter(info));
-			context.write(outputKey, NullWritable.get());
+		for (EventTSArray array : values) {
+			for (Writable w : array.get()) {
+				EventInfo info = (EventInfo) w;
+				outputKey.set(formatter(info));
+				context.write(outputKey, NullWritable.get());
+			}
+
 		}
 	}
 

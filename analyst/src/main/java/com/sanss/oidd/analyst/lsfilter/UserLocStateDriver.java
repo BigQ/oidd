@@ -14,10 +14,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import com.sanss.oidd.common.io.EventInfo;
-import com.sanss.oidd.common.io.UserTimeGroupComparator;
-import com.sanss.oidd.common.io.UserTimeKeyComparator;
-import com.sanss.oidd.common.io.UserTimePair;
+import com.sanss.oidd.common.io.EventTSArray;
 
 public class UserLocStateDriver extends Configured implements Tool {
 
@@ -42,10 +39,6 @@ public class UserLocStateDriver extends Configured implements Tool {
 		job.setMapperClass(UserLocStateMapper.class);
 		job.setReducerClass(UserLocStateReducer.class);
 
-		// set sort order
-		job.setSortComparatorClass(UserTimeKeyComparator.class);
-		job.setGroupingComparatorClass(UserTimeGroupComparator.class);
-
 		// set input output
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
@@ -53,8 +46,8 @@ public class UserLocStateDriver extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		// set output key and value type
-		job.setMapOutputKeyClass(UserTimePair.class);
-		job.setMapOutputValueClass(EventInfo.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(EventTSArray.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(NullWritable.class);
 
