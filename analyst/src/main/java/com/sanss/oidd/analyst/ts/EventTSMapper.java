@@ -17,10 +17,10 @@ public class EventTSMapper extends
 	@Override
 	protected void map(Text key, EventInfo value, Context context)
 			throws IOException, InterruptedException {
-		if (value.getMdn().toString().length() != C_V_ILLEGAL_MDN_LEN) {
+		if (value.getMdn().toString().equals(C_V_UNKNOWN_MDN)) {
 			// skip illegal IMSI record
 			context.getCounter(C_COUNTER_G_SKIPRECORD,
-					C_COUNTER_SKIPRECORD_ILLMDN).increment(1);
+					C_COUNTER_SKIPRECORD_UNKOWN).increment(1);
 		} else {
 			// generate map output key and value
 			mapOutputKey.set(value.getMdn(), value.getTrackDate());

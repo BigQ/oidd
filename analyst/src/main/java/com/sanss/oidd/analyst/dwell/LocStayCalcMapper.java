@@ -18,7 +18,7 @@ import com.sanss.oidd.common.io.LocStayInfo;
 public class LocStayCalcMapper extends
 		Mapper<Text, EventTSArray, Text, LocStayArray> {
 
-	private Text outputKey = new Text();
+	// private Text outputKey = new Text();
 	private LocStayArray outputValue = new LocStayArray();
 	private List<LocStayInfo> container = new ArrayList<>();
 
@@ -111,10 +111,9 @@ public class LocStayCalcMapper extends
 					C_COUNTER_SKIPRECORD_ILLMDN).increment(1);
 		} else if (container.size() > 0) {
 			// flush the container items
-			Writable[] arrtemp = new Writable[container.size()];
-			outputValue.set(container.toArray(arrtemp));
-			outputKey.set(eventInfo.getMdn().toString());
-			context.write(outputKey, outputValue);
+			Writable[] arr = new Writable[container.size()];
+			outputValue.set(container.toArray(arr));
+			context.write(key, outputValue);
 		}
 		container.clear();
 	}

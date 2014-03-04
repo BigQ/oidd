@@ -16,7 +16,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.sanss.oidd.common.io.DwellGroup;
-import com.sanss.oidd.common.io.LocStayArray;
+
 
 public class DwellGroupDriver extends Configured implements Tool {
 

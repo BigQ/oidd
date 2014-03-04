@@ -84,7 +84,7 @@ public class DwellGroupMapper extends
 						}
 
 					}
-
+					// flush the AB
 					info1 = (LocStayInfo) array[begin];
 					mapOutputValue.getBegin().set(info1.getBegin().get());
 					mapOutputValue.getDate().set(info1.getDate().copyBytes());
@@ -106,8 +106,8 @@ public class DwellGroupMapper extends
 					mapOutputValue.getGroup().set(arr);
 					context.write(key, mapOutputValue);
 					continue;
-				}
-			}
+				}//:end if, check the ABAB pattern
+			}//:end if, check enough items for ABAB pattern
 
 			info1 = (LocStayInfo) array[index];
 			if (info1.getSpan().get() < Common.C_V_EVENT_CYCLE_FULL) {
@@ -126,7 +126,7 @@ public class DwellGroupMapper extends
 						break;
 					}
 				}
-
+				// flush the short dwell items to one group
 				info1 = (LocStayInfo) array[begin];
 				mapOutputValue.getBegin().set(info1.getBegin().get());
 				mapOutputValue.getDate().set(info1.getDate().copyBytes());

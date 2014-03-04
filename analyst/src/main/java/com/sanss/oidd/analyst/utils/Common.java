@@ -43,6 +43,7 @@ public class Common {
 	 */
 	public static final String C_COUNTER_G_SKIPRECORD = "SKIP_RECORD";
 	public static final String C_COUNTER_SKIPRECORD_DUP = "duplicated";
+	public static final String C_COUNTER_SKIPRECORD_UNKOWN = "unknown.mdn";
 	public static final String C_COUNTER_SKIPRECORD_ILLMDN = "illegal.mdn";
 	public static final String C_COUNTER_SKIPRECORD_ILLIMSI = "illegal.imsi";
 	public static final String C_COUNTER_SKIPRECORD_ERROR = "error";
