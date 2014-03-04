@@ -6,6 +6,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -16,7 +17,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.sanss.oidd.common.io.DwellGroup;
-
+import com.sanss.oidd.common.io.EventTSArray;
+import com.sanss.oidd.common.io.LocStayArray;
 
 public class DwellGroupDriver extends Configured implements Tool {
 
@@ -38,14 +40,18 @@ public class DwellGroupDriver extends Configured implements Tool {
 		job.setJarByClass(getClass());
 
 		// set map-reduce
-		job.setMapperClass(DwellGroupMapper.class);
-		
+		ChainMapper.addMapper(job, LocStayCalcMapper.class, Text.class,
+				EventTSArray.class, Text.class, LocStayArray.class, getConf());
+		ChainMapper.addMapper(job, DwellGroupMapper.class, Text.class,
+				LocStayArray.class, Text.class, DwellGroup.class, getConf());
+		// job.setMapperClass(DwellGroupMapper.class);
+
 		// set output key and value type
-		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(DwellGroup.class);
+		// job.setMapOutputKeyClass(Text.class);
+		// job.setMapOutputValueClass(DwellGroup.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(DwellGroup.class);
-		
+
 		// set compress option
 		SequenceFileOutputFormat.setOutputCompressionType(job,
 				CompressionType.BLOCK);

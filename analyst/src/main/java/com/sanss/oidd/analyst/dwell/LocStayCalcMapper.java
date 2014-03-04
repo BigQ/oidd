@@ -136,7 +136,7 @@ public class LocStayCalcMapper extends
 			stay.getX1().set(stay.getX1().get() + 1);
 			break;
 		default:
-			stay.getNbe().set(stay.getNbe().get() + 1);
+			stay.getNb().set(stay.getNb().get() + 1);
 			break;
 		}
 	}

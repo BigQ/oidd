@@ -41,7 +41,7 @@ public class LocStayInfo implements Writable {
 	/**
 	 * measure unit, sum-up the count of the non-business event
 	 */
-	private final IntWritable nbe;
+	private final IntWritable nb;
 
 	public LocStayInfo() {
 		this.loc = new Text();
@@ -53,7 +53,7 @@ public class LocStayInfo implements Writable {
 		this.m0 = new IntWritable();
 		this.m1 = new IntWritable();
 		this.x1 = new IntWritable();
-		this.nbe = new IntWritable();
+		this.nb = new IntWritable();
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class LocStayInfo implements Writable {
 		m0.write(out);
 		m1.write(out);
 		x1.write(out);
-		nbe.write(out);
+		nb.write(out);
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class LocStayInfo implements Writable {
 		m0.readFields(in);
 		m1.readFields(in);
 		x1.readFields(in);
-		nbe.readFields(in);
+		nb.readFields(in);
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class LocStayInfo implements Writable {
 				.append('\t').append(span.get()).append('\t').append(c0.get())
 				.append('\t').append(c1.get()).append('\t').append(m0.get())
 				.append('\t').append(m1.get()).append('\t').append(x1.get())
-				.append('\t').append(nbe.get()).toString();
+				.append('\t').append(nb.get()).toString();
 	}
 
 	public Text getLoc() {
@@ -130,8 +130,8 @@ public class LocStayInfo implements Writable {
 		return x1;
 	}
 
-	public IntWritable getNbe() {
-		return nbe;
+	public IntWritable getNb() {
+		return nb;
 	}
 
 }

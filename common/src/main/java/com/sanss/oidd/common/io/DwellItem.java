@@ -36,6 +36,10 @@ public class DwellItem implements Writable {
 	 * measure unit, sum-up the count of the short message received
 	 */
 	private final IntWritable x1;
+	/**
+	 * measure unit, sum-up the count of the non-business event
+	 */
+	private final IntWritable nb;
 
 	public DwellItem() {
 		this.loc = new Text();
@@ -46,6 +50,7 @@ public class DwellItem implements Writable {
 		this.m0 = new IntWritable();
 		this.m1 = new IntWritable();
 		this.x1 = new IntWritable();
+		this.nb = new IntWritable();
 	}
 
 	@Override
@@ -58,6 +63,7 @@ public class DwellItem implements Writable {
 		m0.write(out);
 		m1.write(out);
 		x1.write(out);
+		nb.write(out);
 	}
 
 	@Override
@@ -70,6 +76,7 @@ public class DwellItem implements Writable {
 		m0.readFields(in);
 		m1.readFields(in);
 		x1.readFields(in);
+		nb.readFields(in);
 	}
 
 	@Override
@@ -78,8 +85,8 @@ public class DwellItem implements Writable {
 				.append(", span:").append(span.get()).append(", c0:")
 				.append(c0.get()).append(", c1:").append(c1.get())
 				.append(", m0:").append(m0.get()).append(", m1:")
-				.append(m1.get()).append(", x1:").append(x1.get()).append("}")
-				.toString();
+				.append(m1.get()).append(", x1:").append(x1.get())
+				.append(", nb:").append(nb.get()).append("}").toString();
 	}
 
 	public Text getLoc() {
@@ -108,6 +115,10 @@ public class DwellItem implements Writable {
 
 	public IntWritable getX1() {
 		return x1;
+	}
+
+	public IntWritable getNb() {
+		return nb;
 	}
 
 }

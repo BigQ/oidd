@@ -50,11 +50,11 @@ public class DwellGroupMapper extends
 				if (info1.getLoc().toString().equals(info3.getLoc().toString())
 						&& info2.getLoc().toString()
 								.equals(info4.getLoc().toString())
-						&& info1.getBegin().get() == (info2.getBegin().get() + info2
+						&& info2.getBegin().get() == (info1.getBegin().get() + info1
 								.getSpan().get())
-						&& info2.getBegin().get() == (info3.getBegin().get() + info3
+						&& info3.getBegin().get() == (info2.getBegin().get() + info2
 								.getSpan().get())
-						&& info3.getBegin().get() == (info4.getBegin().get() + info4
+						&& info4.getBegin().get() == (info3.getBegin().get() + info3
 								.getSpan().get())) {
 					// mark the start item
 					begin = index;
@@ -172,6 +172,7 @@ public class DwellGroupMapper extends
 		item.getM0().set(info.getM0().get());
 		item.getM1().set(info.getM1().get());
 		item.getX1().set(info.getX1().get());
+		item.getNb().set(info.getNb().get());
 	}
 
 	private void mergeDwellItem(final DwellItem source, final DwellItem target) {
@@ -181,5 +182,6 @@ public class DwellGroupMapper extends
 		target.getM0().set(target.getM0().get() + source.getM0().get());
 		target.getM1().set(target.getM1().get() + source.getM1().get());
 		target.getX1().set(target.getX1().get() + source.getX1().get());
+		target.getNb().set(target.getNb().get() + source.getNb().get());
 	}
 }
