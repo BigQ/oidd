@@ -12,7 +12,7 @@ public class DwellGroup implements Writable {
 
 	private final Text date;
 	/**
-	 * the group type, 0: linger, 1:ABAB... , 2: pass
+	 * the group type, 0: linger, 1:switch-over , 2: pass
 	 */
 	private final IntWritable type;
 	private final IntWritable begin;
@@ -70,12 +70,6 @@ public class DwellGroup implements Writable {
 	public String getLocs() {
 		if (type.get() == 2) {
 			return loc1.toString() + "-" + loc2.toString();
-		} else if (type.get() == 1) {
-			if (loc1.toString().compareTo(loc2.toString()) > 0) {
-				return loc2.toString() + "|" + loc1.toString();
-			} else {
-				return loc1.toString() + "|" + loc2.toString();
-			}
 		} else {
 			return loc1.toString();
 		}
