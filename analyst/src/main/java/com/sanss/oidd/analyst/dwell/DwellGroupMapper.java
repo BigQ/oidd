@@ -116,7 +116,7 @@ public class DwellGroupMapper extends
 		// find all passing items
 		if (marks.size() > 0 && marks.get(0)[0] > 0) {
 			begin = index = 0;
-			while (index < marks.get(0)[0]) {
+			while (begin < marks.get(0)[0]) {
 				index = findLastIndex(array, begin, marks.get(0)[0] - 1);
 				flushGroup(array, 2, begin,
 						(index == marks.get(0)[0] - 1 ? index + 1 : index),
@@ -126,7 +126,7 @@ public class DwellGroupMapper extends
 		}
 		for (int i = 1; i < marks.size(); i++) {
 			begin = index = marks.get(i - 1)[1] + 1;
-			while (index < marks.get(i)[0]) {
+			while (begin < marks.get(i)[0]) {
 				index = findLastIndex(array, begin, marks.get(i)[0] - 1);
 				flushGroup(array, 2,
 						(begin == marks.get(i - 1)[1] + 1 ? begin - 1 : begin),
@@ -138,7 +138,7 @@ public class DwellGroupMapper extends
 		if (marks.size() > 0
 				&& marks.get(marks.size() - 1)[1] < array.length - 1) {
 			begin = index = marks.get(marks.size() - 1)[1] + 1;
-			while (index < array.length) {
+			while (begin < array.length) {
 				index = findLastIndex(array, begin, array.length - 1);
 				flushGroup(
 						array,
