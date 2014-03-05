@@ -164,7 +164,7 @@ public class DwellGroupMapper extends
 
 		Writable[] arr = new Writable[groupTo - groupFrom + 1];
 		DwellItem item = null;
-		for (int i = groupTo; i <= groupFrom; i++) {
+		for (int i = groupFrom; i <= groupTo; i++) {
 			item = container.get(i);
 			arr[i - groupFrom] = item;
 			mapOutputValue.getEnd().set(
