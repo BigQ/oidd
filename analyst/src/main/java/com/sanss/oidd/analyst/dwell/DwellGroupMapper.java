@@ -18,6 +18,7 @@ public class DwellGroupMapper extends
 		Mapper<Text, LocStayArray, Text, DwellGroup> {
 
 	private DwellGroup mapOutputValue = new DwellGroup();
+	private Text mapOutputKey;
 	private List<DwellItem> container = new ArrayList<>();
 
 	@Override
@@ -25,12 +26,13 @@ public class DwellGroupMapper extends
 			throws IOException, InterruptedException {
 
 		LocStayInfo info1, info2, info3, info4;
-		DwellItem item = null;
+		List<int[]> marks = new ArrayList<>();
+
 		int index = 0;
 		int begin = 0;
 
 		Writable[] array = value.get();
-
+		mapOutputKey = key;
 		// initial the container
 		for (int i = 0; i < array.length; i++) {
 			if (container.size() < i + 1) {
@@ -39,8 +41,8 @@ public class DwellGroupMapper extends
 			copyLocStay2DwellItem(container.get(i), (LocStayInfo) array[i]);
 		}
 
+		// find all dwell items and group the ABAB... items;
 		while (index < array.length) {
-
 			// find the ABAB... pattern
 			if (index + 3 < array.length) {
 				info1 = (LocStayInfo) array[index];
@@ -61,7 +63,6 @@ public class DwellGroupMapper extends
 					// do merge
 					mergeDwellItem(container.get(index),
 							container.get(index + 2));
-
 					mergeDwellItem(container.get(index + 1),
 							container.get(index + 3));
 
@@ -87,80 +88,107 @@ public class DwellGroupMapper extends
 						}
 
 					}
-					// flush the AB
-					info1 = (LocStayInfo) array[begin];
-					mapOutputValue.getBegin().set(info1.getBegin().get());
-					mapOutputValue.getDate().set(info1.getDate().copyBytes());
-					mapOutputValue.getEnd().set(info1.getBegin().get());
-					mapOutputValue.getType().set(0);// dwell
-
-					Writable[] arr = new Writable[2];
-					item = container.get(index - 2);
-					arr[0] = item;
-					mapOutputValue.getEnd().set(
-							mapOutputValue.getEnd().get()
-									+ item.getSpan().get());
-
-					item = container.get(index - 1);
-					arr[1] = item;
-					mapOutputValue.getEnd().set(
-							mapOutputValue.getEnd().get()
-									+ item.getSpan().get());
-					mapOutputValue.getGroup().set(arr);
-					context.write(key, mapOutputValue);
+					// flush ABAB... group
+					flushGroup(array, 1, begin, begin + 1, index - 2,
+							index - 1, context);
+					// mark the index
+					int[] mark = { begin, index - 1 };
+					marks.add(mark);
 					continue;
 				}// :end if, check the ABAB pattern
 			}// :end if, check enough items for ABAB pattern
 
 			info1 = (LocStayInfo) array[index];
-			if (info1.getSpan().get() < Common.C_V_EVENT_CYCLE_FULL) {
-				// mark the start item
-				begin = index;
-				index++;
-				// group the short lingering items
-				while (index < array.length) {
-					info1 = (LocStayInfo) array[index];
-					info2 = (LocStayInfo) array[index - 1];
-					if (info1.getBegin().get() == (info2.getBegin().get() + info2
-							.getSpan().get())
-							&& info1.getSpan().get() < Common.C_V_EVENT_CYCLE_FULL) {
-						index++;
-					} else {
-						break;
-					}
-				}
-				// flush the short dwell items to one group
-				info1 = (LocStayInfo) array[begin];
-				mapOutputValue.getBegin().set(info1.getBegin().get());
-				mapOutputValue.getDate().set(info1.getDate().copyBytes());
-				mapOutputValue.getEnd().set(info1.getBegin().get());
-				mapOutputValue.getType().set(1);// short-dwell
+			if (info1.getSpan().get() >= Common.C_V_EVENT_CYCLE_FULL) {
+				// flush linger group
+				flushGroup(array, 0, index, index, index, index, context);
+				// mark the index
+				int[] mark = { index, index };
+				marks.add(mark);
 
-				Writable[] arr = new Writable[index - begin];
-				for (int i = begin; i < index; i++) {
-					item = container.get(i);
-					arr[i - begin] = item;
-					mapOutputValue.getEnd().set(
-							mapOutputValue.getEnd().get()
-									+ item.getSpan().get());
-				}
-				mapOutputValue.getGroup().set(arr);
-				context.write(key, mapOutputValue);
-			} else {
-				mapOutputValue.getBegin().set(info1.getBegin().get());
-				mapOutputValue.getDate().set(info1.getDate().copyBytes());
-				mapOutputValue.getEnd().set(info1.getBegin().get());
-				mapOutputValue.getType().set(0);// dwell
-				Writable[] arr = new Writable[1];
-				item = container.get(index);
-				arr[0] = item;
-				mapOutputValue.getEnd().set(
-						mapOutputValue.getEnd().get() + item.getSpan().get());
-				mapOutputValue.getGroup().set(arr);
-				context.write(key, mapOutputValue);
 				index++;
+			} else {
+				// skip
+				index++;
+			}// :end if
+		}// :end while
+
+		// find all passing items
+		if (marks.size() > 0 && marks.get(0)[0] > 0) {
+			begin = index = 0;
+			while (index < marks.get(0)[0]) {
+				index = findLastIndex(array, begin, marks.get(0)[0] - 1);
+				flushGroup(array, 2, begin,
+						(index == marks.get(0)[0] - 1 ? index + 1 : index),
+						begin, index, context);
+				begin = index + 1;
 			}
 		}
+		for (int i = 1; i < marks.size(); i++) {
+			begin = index = marks.get(i - 1)[1] + 1;
+			while (index < marks.get(i)[0]) {
+				index = findLastIndex(array, begin, marks.get(i)[0] - 1);
+				flushGroup(array, 2,
+						(begin == marks.get(i - 1)[1] + 1 ? begin - 1 : begin),
+						(index == marks.get(i)[0] - 1 ? index + 1 : index),
+						begin, index, context);
+				begin = index + 1;
+			}
+		}
+		if (marks.size() > 0
+				&& marks.get(marks.size() - 1)[1] < array.length - 1) {
+			begin = index = marks.get(marks.size() - 1)[1] + 1;
+			while (index < array.length) {
+				index = findLastIndex(array, begin, array.length - 1);
+				flushGroup(
+						array,
+						2,
+						(begin == marks.get(marks.size() - 1)[1] + 1 ? begin - 1
+								: begin), index, begin, index, context);
+				begin = index + 1;
+			}
+		}
+	}
+
+	private void flushGroup(Writable[] array, int type, int begin, int end,
+			int groupFrom, int groupTo, Context context) throws IOException,
+			InterruptedException {
+		LocStayInfo info = (LocStayInfo) array[begin];
+		mapOutputValue.getBegin().set(info.getBegin().get());
+		mapOutputValue.getDate().set(info.getDate().copyBytes());
+		mapOutputValue.getType().set(type);
+		mapOutputValue.getLoc1().set(info.getLoc().copyBytes());
+
+		info = (LocStayInfo) array[end];
+		mapOutputValue.getLoc2().set(info.getLoc().copyBytes());
+
+		Writable[] arr = new Writable[groupTo - groupFrom + 1];
+		DwellItem item = null;
+		for (int i = groupTo; i <= groupFrom; i++) {
+			item = container.get(i);
+			arr[i - groupFrom] = item;
+			mapOutputValue.getEnd().set(
+					mapOutputValue.getEnd().get() + item.getSpan().get());
+		}
+		mapOutputValue.getGroup().set(arr);
+		context.write(mapOutputKey, mapOutputValue);
+	}
+
+	private int findLastIndex(Writable[] array, int start, int end) {
+		LocStayInfo info1, info2;
+		int last = start + 1;
+		info1 = (LocStayInfo) array[start];
+		while (last <= end) {
+			info1 = (LocStayInfo) array[last];
+			info2 = (LocStayInfo) array[last - 1];
+			if (info1.getBegin().get() == (info2.getBegin().get() + info2
+					.getSpan().get())) {
+				last++;
+			} else {
+				break;
+			}
+		}
+		return last - 1;
 	}
 
 	private void copyLocStay2DwellItem(final DwellItem item,

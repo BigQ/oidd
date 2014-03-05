@@ -12,11 +12,13 @@ public class DwellGroup implements Writable {
 
 	private final Text date;
 	/**
-	 * the group type, 0: long, 1:short
+	 * the group type, 0: linger, 1:ABAB... , 2: pass
 	 */
 	private final IntWritable type;
 	private final IntWritable begin;
 	private final IntWritable end;
+	private final Text loc1;
+	private final Text loc2;
 	private final DwellItemArray group;
 
 	public DwellGroup() {
@@ -24,6 +26,8 @@ public class DwellGroup implements Writable {
 		this.type = new IntWritable();
 		this.begin = new IntWritable();
 		this.end = new IntWritable();
+		this.loc1 = new Text();
+		this.loc2 = new Text();
 		this.group = new DwellItemArray();
 	}
 
@@ -34,6 +38,8 @@ public class DwellGroup implements Writable {
 		group.write(out);
 		begin.write(out);
 		end.write(out);
+		loc1.write(out);
+		loc2.write(out);
 	}
 
 	@Override
@@ -43,24 +49,42 @@ public class DwellGroup implements Writable {
 		group.readFields(in);
 		begin.readFields(in);
 		end.readFields(in);
+		loc1.readFields(in);
+		loc2.readFields(in);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("{\n\ttm:").append(date.toString()).append(", type:")
-				.append(type.get()).append(", st:").append(begin.get()).append(", ed:").append(end.get())
+		StringBuilder sb = new StringBuilder("{\n\ttm:")
+				.append(date.toString()).append(", type:").append(type.get())
+				.append(", locs:").append(getLocs()).append(", st:")
+				.append(begin.get()).append(", ed:").append(end.get())
 				.append(", span:").append(getSpan()).append(", [\n");
-		for(String s: group.toStrings()){
+		for (String s : group.toStrings()) {
 			sb.append("\t\t").append(s).append("\n");
 		}
 		sb.append("\t]\n}");
 		return sb.toString();
 	}
 
-	public int getSpan(){
+	public String getLocs() {
+		if (type.get() == 2) {
+			return loc1.toString() + "-" + loc2.toString();
+		} else if (type.get() == 1) {
+			if (loc1.toString().compareTo(loc2.toString()) > 0) {
+				return loc2.toString() + "|" + loc1.toString();
+			} else {
+				return loc1.toString() + "|" + loc2.toString();
+			}
+		} else {
+			return loc1.toString();
+		}
+	}
+
+	public int getSpan() {
 		return end.get() - begin.get();
 	}
-	
+
 	public Text getDate() {
 		return date;
 	}
@@ -81,4 +105,11 @@ public class DwellGroup implements Writable {
 		return group;
 	}
 
+	public Text getLoc1() {
+		return loc1;
+	}
+
+	public Text getLoc2() {
+		return loc2;
+	}
 }
