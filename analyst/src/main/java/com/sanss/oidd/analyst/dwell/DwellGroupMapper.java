@@ -128,9 +128,13 @@ public class DwellGroupMapper extends
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
 			if (switchoverGroup.containsKey(loc)) {
 				count = switchoverGroup.get(loc);
-				count.set(count.get() + 1);
+				count.set(count.get()
+						+ Math.max(1, ((LocStayInfo) array[last]).getNb().get()));
 			} else if (switchoverGroup.size() < 3) {
-				switchoverGroup.put(loc, new IntWritable(1));
+				switchoverGroup.put(
+						loc,
+						new IntWritable(Math.max(1, ((LocStayInfo) array[last])
+								.getNb().get())));
 			} else {
 				break;
 			}
