@@ -154,14 +154,24 @@ public class DwellGroupMapper extends
 			int groupFrom, int groupTo, Context context) throws IOException,
 			InterruptedException {
 		LocStayInfo info = (LocStayInfo) array[begin];
-		mapOutputValue.getBegin().set(info.getBegin().get());
 		mapOutputValue.getDate().set(info.getDate().copyBytes());
 		mapOutputValue.getType().set(type);
 		mapOutputValue.getLoc1().set(info.getLoc().copyBytes());
-
 		info = (LocStayInfo) array[end];
 		mapOutputValue.getLoc2().set(info.getLoc().copyBytes());
 
+		// set the begin
+		if (type != 1) {
+			info = (LocStayInfo) array[groupFrom];
+			mapOutputValue.getBegin().set(info.getBegin().get());
+			mapOutputValue.getEnd().set(info.getBegin().get());
+		} else {
+			info = (LocStayInfo) array[begin];
+			mapOutputValue.getBegin().set(info.getBegin().get());
+			mapOutputValue.getEnd().set(info.getBegin().get());
+		}
+
+		// set the group & calculate the end
 		Writable[] arr = new Writable[groupTo - groupFrom + 1];
 		DwellItem item = null;
 		for (int i = groupFrom; i <= groupTo; i++) {
