@@ -27,7 +27,8 @@ public class DwellGroupMapper extends
 	private Text mapOutputKey;
 	private List<DwellItem> container = new ArrayList<>();
 	private HashMap<String, IntWritable> switchoverGroup = new HashMap<>();
-	protected static final int NOISE_UNIT = 3;
+	private HashMap<String, IntWritable> noiseGroup = new HashMap<>();
+	protected static final int NOISE_THRESHOLD = 3;
 
 	@Override
 	protected void map(Text key, LocStayArray value, Context context)
@@ -122,72 +123,52 @@ public class DwellGroupMapper extends
 		int last = start;
 		int mark = start;
 		String loc = null;
+		int repeats = 0;
 		IntWritable count;
 		int noise = 0;
 
 		switchoverGroup.clear();
+		noiseGroup.clear();
+		// put the first item to the group
+		loc = ((LocStayInfo) array[start]).getLoc().toString();
+		switchoverGroup.put(loc, new IntWritable(1));
+
 		while (last < array.length) {
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
+			repeats = ((LocStayInfo) array[last]).getNb().get();
 			if (switchoverGroup.containsKey(loc)) {
 				count = switchoverGroup.get(loc);
-				count.set(count.get()
-						+ Math.max(1, ((LocStayInfo) array[last]).getNb().get()));
-				noise = Math.max(
-						noise
-								- Math.max(1, ((LocStayInfo) array[last])
-										.getNb().get()), 0);
+				count.set(count.get() + Math.max(1, repeats));
+				noise = Math.max(noise - Math.max(1, repeats), 0);
 				if (noise < 1) {
 					mark = last;
 				}
-			} else if (switchoverGroup.size() < 3) {
-				if (switchoverGroup.size() < 1) { // first item in a group
-					switchoverGroup.put(loc, new IntWritable(1));
+			} else if (noiseGroup.containsKey(loc)) {
+				switchoverGroup.put(loc, new IntWritable(noiseGroup.get(loc)
+						.get() + 1));
+				noiseGroup.remove(loc);
+			} else if (noise < NOISE_THRESHOLD) {
+				if (repeats > 1) {
+					switchoverGroup.put(loc, new IntWritable(repeats));
 				} else {
-					switchoverGroup
-							.put(loc,
-									new IntWritable(Math.max(1,
-											((LocStayInfo) array[last]).getNb()
-													.get())));
+					noiseGroup.put(loc, new IntWritable(1));
+					noise = noise
+							+ Math.max(1, ((LocStayInfo) array[last]).getNb()
+									.get());
 				}
-			} else if (checkSwitchoverGroup(switchoverGroup.values())
-					&& noise < 1) {
-				noise += NOISE_UNIT;
 			} else {
 				break;
 			}
+
 			last++;
 		}
 
-		if (mark == start) {
-			return start;
-		}
-
-		// check whether it is satisfied with the switch-over group condition
-		if (mark + 1 < array.length) {
-			loc = ((LocStayInfo) array[mark + 1]).getLoc().toString();
-			if (switchoverGroup.containsKey(loc)) {
-				if (switchoverGroup.get(loc).get() < 2) {
-					switchoverGroup.remove(loc);
-				} else {
-					mark = mark + 1;
-				}
-			}
-		}
-
-		if (checkSwitchoverGroup(switchoverGroup.values())) {
+		loc = ((LocStayInfo) array[start]).getLoc().toString();
+		if (switchoverGroup.get(loc).get() > 1) {
 			return mark;
 		} else {
 			return start;
 		}
-	}
-
-	private boolean checkSwitchoverGroup(Collection<IntWritable> items) {
-		for (IntWritable val : items) {
-			if (val.get() < 2) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private String flushGroup(Writable[] array, int type, int begin, int end,
