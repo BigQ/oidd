@@ -141,9 +141,8 @@ public class DwellGroupMapper extends
 				count = switchoverGroup.get(loc);
 				count.set(count.get() + Math.max(1, repeats));
 				noise = Math.max(noise - Math.max(1, repeats), 0);
-				if (noise < 1) {
-					mark = last;
-				}
+				// mark the last
+				mark = last;
 			} else if (noiseGroup.containsKey(loc) && noise < NOISE_THRESHOLD) {
 				switchoverGroup.put(loc, new IntWritable(noiseGroup.get(loc)
 						.get() + 1));
