@@ -2,6 +2,7 @@ package com.sanss.oidd.analyst.dwell;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,29 +124,24 @@ public class DwellGroupMapper extends
 		String loc = null;
 		IntWritable count;
 		int noise = 0;
-		int statisfiedItems = 0;
-		switchoverGroup.clear();
 
+		switchoverGroup.clear();
 		while (last < array.length) {
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
 			if (switchoverGroup.containsKey(loc)) {
 				count = switchoverGroup.get(loc);
-				count.set(count.get()
-						+ Math.max(1, ((LocStayInfo) array[last]).getNb().get()));
+				count.set(count.get() + 1);
 				noise = Math.max(
-						0,
 						noise
 								- Math.max(1, ((LocStayInfo) array[last])
-										.getNb().get()));
+										.getNb().get()), 0);
 				if (noise < 1) {
 					mark = last;
 				}
 			} else if (switchoverGroup.size() < 3) {
-				switchoverGroup.put(
-						loc,
-						new IntWritable(Math.max(1, ((LocStayInfo) array[last])
-								.getNb().get())));
-			} else if (noise < 1) {
+				switchoverGroup.put(loc, new IntWritable(1));
+			} else if (checkSwitchoverGroup(switchoverGroup.values())
+					&& noise < 1) {
 				noise += NOISE_UNIT;
 			} else {
 				break;
@@ -160,30 +156,29 @@ public class DwellGroupMapper extends
 		// check whether it is satisfied with the switch-over group condition
 		if (mark + 1 < array.length) {
 			loc = ((LocStayInfo) array[mark + 1]).getLoc().toString();
-		} else {
-			loc = null;
-		}
-
-		for (Map.Entry<String, IntWritable> entry : switchoverGroup.entrySet()) {
-			if (!entry.getKey().equals(loc) && entry.getValue().get() > 1) {
-				statisfiedItems++;
-			}
-		}
-
-		if (statisfiedItems * 10 > switchoverGroup.size() * 5) {
 			if (switchoverGroup.containsKey(loc)) {
-				if (switchoverGroup.get(loc).get() > 1) {
-					return mark + 1;
-				} else {
+				if (switchoverGroup.get(loc).get() < 2) {
 					switchoverGroup.remove(loc);
-					return mark;
+				} else {
+					mark = mark + 1;
 				}
-			} else {
-				return mark;
 			}
+		}
+
+		if (checkSwitchoverGroup(switchoverGroup.values())) {
+			return mark;
 		} else {
 			return start;
 		}
+	}
+
+	private boolean checkSwitchoverGroup(Collection<IntWritable> items) {
+		for (IntWritable val : items) {
+			if (val.get() < 2) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private String flushGroup(Writable[] array, int type, int begin, int end,
