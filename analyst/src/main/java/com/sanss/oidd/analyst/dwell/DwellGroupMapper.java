@@ -130,7 +130,8 @@ public class DwellGroupMapper extends
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
 			if (switchoverGroup.containsKey(loc)) {
 				count = switchoverGroup.get(loc);
-				count.set(count.get() + 1);
+				count.set(count.get()
+						+ Math.max(1, ((LocStayInfo) array[last]).getNb().get()));
 				noise = Math.max(
 						noise
 								- Math.max(1, ((LocStayInfo) array[last])
@@ -139,7 +140,15 @@ public class DwellGroupMapper extends
 					mark = last;
 				}
 			} else if (switchoverGroup.size() < 3) {
-				switchoverGroup.put(loc, new IntWritable(1));
+				if (switchoverGroup.size() < 1) { // first item in a group
+					switchoverGroup.put(loc, new IntWritable(1));
+				} else {
+					switchoverGroup
+							.put(loc,
+									new IntWritable(Math.max(1,
+											((LocStayInfo) array[last]).getNb()
+													.get())));
+				}
 			} else if (checkSwitchoverGroup(switchoverGroup.values())
 					&& noise < 1) {
 				noise += NOISE_UNIT;
