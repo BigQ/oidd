@@ -135,7 +135,7 @@ public class DwellGroupMapper extends
 		switchoverGroup.put(loc, new IntWritable(1));
 		lastEnd = getEndofLocStay(((LocStayInfo) array[start]));
 
-		while (last < array.length) {
+		while (last < array.length && noise < NOISE_THRESHOLD) {
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
 			repeats = ((LocStayInfo) array[last]).getNb().get();
 			if (((LocStayInfo) array[last]).getBegin().get() != lastEnd) {
@@ -150,20 +150,21 @@ public class DwellGroupMapper extends
 				noise = Math.max(noise - Math.max(1, repeats), 0);
 				// mark the last
 				mark = last;
-			} else if (noiseGroup.containsKey(loc) && noise < NOISE_THRESHOLD) {
+			} else if (noiseGroup.containsKey(loc)) {
 				switchoverGroup.put(loc, new IntWritable(noiseGroup.get(loc)
 						.get() + 1));
 				noiseGroup.remove(loc);
 				mark = last;
-			} else if (noise < NOISE_THRESHOLD) {
+			} else {
 				if (repeats > 1) {
 					switchoverGroup.put(loc, new IntWritable(repeats));
+					mark = last;
 				} else {
-					noiseGroup.put(loc, new IntWritable(1));
-					noise = noise + Math.max(1, repeats);
+					noise = noise + 1;
+					if (noise < NOISE_THRESHOLD) {
+						noiseGroup.put(loc, new IntWritable(1));
+					}
 				}
-			} else {
-				break;
 			}
 
 			last++;
