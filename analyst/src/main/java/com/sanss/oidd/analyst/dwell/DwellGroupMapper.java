@@ -120,8 +120,9 @@ public class DwellGroupMapper extends
 	}
 
 	private int findSwitchoverGroupLastIndex(Writable[] array, int start) {
-		int last = start;
+		
 		int mark = start;
+		int last = start + 1;
 		String loc = null;
 		int repeats = 0;
 		IntWritable count;
@@ -143,7 +144,7 @@ public class DwellGroupMapper extends
 				if (noise < 1) {
 					mark = last;
 				}
-			} else if (noiseGroup.containsKey(loc)) {
+			} else if (noiseGroup.containsKey(loc) && noise < NOISE_THRESHOLD) {
 				switchoverGroup.put(loc, new IntWritable(noiseGroup.get(loc)
 						.get() + 1));
 				noiseGroup.remove(loc);
