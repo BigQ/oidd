@@ -160,7 +160,10 @@ public class DwellGroupMapper extends
 		// check whether it is satisfied with the switch-over group condition
 		if (mark + 1 < array.length) {
 			loc = ((LocStayInfo) array[mark + 1]).getLoc().toString();
+		} else {
+			loc = null;
 		}
+
 		for (Map.Entry<String, IntWritable> entry : switchoverGroup.entrySet()) {
 			if (!entry.getKey().equals(loc) && entry.getValue().get() > 1) {
 				statisfiedItems++;
