@@ -2,7 +2,6 @@ package com.sanss.oidd.analyst.dwell;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +160,7 @@ public class DwellGroupMapper extends
 					switchoverGroup.put(loc, new IntWritable(repeats));
 				} else {
 					noiseGroup.put(loc, new IntWritable(1));
-					noise = noise + Math.max(1, repeats * 2);
+					noise = noise + Math.max(1, repeats);
 				}
 			} else {
 				break;
