@@ -124,6 +124,7 @@ public class DwellGroupMapper extends
 		int mark = start;
 		int last = start + 1;
 		String loc = null;
+		int lastEnd = 0;
 		int repeats = 0;
 		IntWritable count;
 		int noise = 0;
@@ -133,10 +134,17 @@ public class DwellGroupMapper extends
 		// put the first item to the group
 		loc = ((LocStayInfo) array[start]).getLoc().toString();
 		switchoverGroup.put(loc, new IntWritable(1));
+		lastEnd = getEndofLocStay(((LocStayInfo) array[start]));
 
 		while (last < array.length) {
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
 			repeats = ((LocStayInfo) array[last]).getNb().get();
+			if (((LocStayInfo) array[last]).getBegin().get() != lastEnd) {
+				break;
+			} else {
+				lastEnd = getEndofLocStay(((LocStayInfo) array[last]));
+			}
+
 			if (switchoverGroup.containsKey(loc)) {
 				count = switchoverGroup.get(loc);
 				count.set(count.get() + Math.max(1, repeats));
@@ -147,6 +155,7 @@ public class DwellGroupMapper extends
 				switchoverGroup.put(loc, new IntWritable(noiseGroup.get(loc)
 						.get() + 1));
 				noiseGroup.remove(loc);
+				mark = last;
 			} else if (noise < NOISE_THRESHOLD) {
 				if (repeats > 1) {
 					switchoverGroup.put(loc, new IntWritable(repeats));
@@ -178,7 +187,8 @@ public class DwellGroupMapper extends
 		LocStayInfo info = (LocStayInfo) array[groupFrom];
 		mapOutputValue.getDate().set(info.getDate().copyBytes());
 		mapOutputValue.getBegin().set(info.getBegin().get());
-		mapOutputValue.getEnd().set(info.getBegin().get());
+		mapOutputValue.getEnd().set(
+				getEndofLocStay((LocStayInfo) array[groupTo]));
 		String groupName = getSwitchoverGroupName(switchoverGroup);
 		mapOutputValue.getSource().set(groupName);
 
@@ -201,8 +211,6 @@ public class DwellGroupMapper extends
 		for (int i = groupFrom; i <= groupTo; i++) {
 			item = container.get(i);
 			arr[i - groupFrom] = item;
-			mapOutputValue.getEnd().set(
-					mapOutputValue.getEnd().get() + item.getSpan().get());
 		}
 		mapOutputValue.getGroup().set(arr);
 		context.write(mapOutputKey, mapOutputValue);
@@ -217,6 +225,10 @@ public class DwellGroupMapper extends
 			sb.append("|").append(loc);
 		}
 		return sb.substring(1);
+	}
+
+	private int getEndofLocStay(LocStayInfo info) {
+		return info.getBegin().get() + info.getSpan().get();
 	}
 
 	private int findPassGroupLastIndex(Writable[] array, int start, int end) {
