@@ -86,7 +86,7 @@ public class LocStayInfo implements Writable {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append(loc.toString()).append('\t')
+		return new StringBuilder().append(loc.toString()).append("\t\t")
 				.append(date.toString()).append('\t').append(begin.get())
 				.append('\t').append(span.get()).append('\t').append(c0.get())
 				.append('\t').append(c1.get()).append('\t').append(m0.get())

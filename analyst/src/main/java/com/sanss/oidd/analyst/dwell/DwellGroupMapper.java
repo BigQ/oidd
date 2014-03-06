@@ -26,13 +26,14 @@ public class DwellGroupMapper extends
 	private Text mapOutputKey;
 	private List<DwellItem> container = new ArrayList<>();
 	private HashMap<String, IntWritable> switchoverGroup = new HashMap<>();
+	protected static final int NOISE_UNIT = 3;
 
 	@Override
 	protected void map(Text key, LocStayArray value, Context context)
 			throws IOException, InterruptedException {
 
 		LocStayInfo info;
-		List<int[]> marks = new ArrayList<>();
+		List<Group> marks = new ArrayList<>();
 
 		int index = 0;
 		int begin = 0;
@@ -49,16 +50,24 @@ public class DwellGroupMapper extends
 
 		// find all linger items and group the switch-over items;
 		while (index < array.length) {
+			// merge whether a noise data appeared
+			info = (LocStayInfo) array[index];
+			if (index + 1 < array.length
+					&& info.getSpan().get() < Common.C_V_EVENT_CYLIC_BONUS
+					&& info.getNb().get() < 2) {
+				// do merge
+			}
+
 			// find the switch-over group
 			if (index + 3 < array.length) {
 				begin = index;
-				index = findWitchoverGroupLastIndex(array, begin);
+				index = findSwitchoverGroupLastIndex(array, begin);
 				if (index > begin) {
 					// flush switch-over group
-					flushGroup(array, 1, begin, index, begin, index, context);
+					String groupName = flushGroup(array, 1, begin, index,
+							begin, index, context);
 					// mark the index
-					int[] mark = { begin, index };
-					marks.add(mark);
+					marks.add(new Group(begin, index, groupName));
 					index++;
 					continue;
 				}
@@ -66,12 +75,20 @@ public class DwellGroupMapper extends
 
 			// find the linger group
 			info = (LocStayInfo) array[index];
-			if (info.getSpan().get() >= Common.C_V_EVENT_CYCLE_FULL) {
+			if (info.getBegin().get() >= Common.C_V_SERVICE_PEAK_START
+					&& info.getBegin().get() <= Common.C_V_SERVICE_PEAK_END
+					&& info.getSpan().get() > Common.C_V_LINGER_PEAK_THRED
+					|| (info.getBegin().get() < Common.C_V_SERVICE_PEAK_START || info
+							.getBegin().get() > Common.C_V_SERVICE_PEAK_END)
+					&& info.getSpan().get() > Common.C_V_LINGER_IDLE_THRED) {
+				switchoverGroup.clear();
+				switchoverGroup.put(info.getLoc().toString(), new IntWritable(
+						Math.max(1, info.getNb().get())));
 				// flush linger group
-				flushGroup(array, 0, index, index, index, index, context);
+				String groupName = flushGroup(array, 0, index, index, index,
+						index, context);
 				// mark the index
-				int[] mark = { index, index };
-				marks.add(mark);
+				marks.add(new Group(begin, index, groupName));
 
 				index++;
 			} else {
@@ -79,85 +96,93 @@ public class DwellGroupMapper extends
 				index++;
 			}// :end if
 		}// :end while
-
-		// find all passing items
-		if (marks.size() > 0 && marks.get(0)[0] > 0) {
-			begin = index = 0;
-			while (begin < marks.get(0)[0]) {
-				index = findPassGroupLastIndex(array, begin,
-						marks.get(0)[0] - 1);
-				flushGroup(array, 2, begin,
-						(index == marks.get(0)[0] - 1 ? index + 1 : index),
-						begin, index, context);
-				begin = index + 1;
-			}
-		}
-		for (int i = 1; i < marks.size(); i++) {
-			begin = index = marks.get(i - 1)[1] + 1;
-			while (begin < marks.get(i)[0]) {
-				index = findPassGroupLastIndex(array, begin,
-						marks.get(i)[0] - 1);
-				flushGroup(array, 2,
-						(begin == marks.get(i - 1)[1] + 1 ? begin - 1 : begin),
-						(index == marks.get(i)[0] - 1 ? index + 1 : index),
-						begin, index, context);
-				begin = index + 1;
-			}
-		}
-		if (marks.size() > 0
-				&& marks.get(marks.size() - 1)[1] < array.length - 1) {
-			begin = index = marks.get(marks.size() - 1)[1] + 1;
-			while (begin < array.length) {
-				index = findPassGroupLastIndex(array, begin, array.length - 1);
-				flushGroup(
-						array,
-						2,
-						(begin == marks.get(marks.size() - 1)[1] + 1 ? begin - 1
-								: begin), index, begin, index, context);
-				begin = index + 1;
-			}
-		}
+		/**
+		 * // find all passing items if (marks.size() > 0 && marks.get(0)[0] >
+		 * 0) { begin = index = 0; while (begin < marks.get(0)[0]) { index =
+		 * findPassGroupLastIndex(array, begin, marks.get(0)[0] - 1);
+		 * flushGroup(array, 2, begin, (index == marks.get(0)[0] - 1 ? index + 1
+		 * : index), begin, index, context); begin = index + 1; } } for (int i =
+		 * 1; i < marks.size(); i++) { begin = index = marks.get(i - 1)[1] + 1;
+		 * while (begin < marks.get(i)[0]) { index =
+		 * findPassGroupLastIndex(array, begin, marks.get(i)[0] - 1);
+		 * flushGroup(array, 2, (begin == marks.get(i - 1)[1] + 1 ? begin - 1 :
+		 * begin), (index == marks.get(i)[0] - 1 ? index + 1 : index), begin,
+		 * index, context); begin = index + 1; } } if (marks.size() > 0 &&
+		 * marks.get(marks.size() - 1)[1] < array.length - 1) { begin = index =
+		 * marks.get(marks.size() - 1)[1] + 1; while (begin < array.length) {
+		 * index = findPassGroupLastIndex(array, begin, array.length - 1);
+		 * flushGroup( array, 2, (begin == marks.get(marks.size() - 1)[1] + 1 ?
+		 * begin - 1 : begin), index, begin, index, context); begin = index + 1;
+		 * } }
+		 */
 	}
 
-	private int findWitchoverGroupLastIndex(Writable[] array, int start) {
+	private int findSwitchoverGroupLastIndex(Writable[] array, int start) {
 		int last = start;
+		int mark = start;
 		String loc;
 		IntWritable count;
+		int noise = 0;
+		int statisfiedItems = 0;
 		switchoverGroup.clear();
+
 		while (last < array.length) {
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
 			if (switchoverGroup.containsKey(loc)) {
 				count = switchoverGroup.get(loc);
 				count.set(count.get()
 						+ Math.max(1, ((LocStayInfo) array[last]).getNb().get()));
+				noise = Math.max(
+						0,
+						noise
+								- Math.max(1, ((LocStayInfo) array[last])
+										.getNb().get()));
+				if (noise < 1) {
+					mark = last;
+				}
 			} else if (switchoverGroup.size() < 3) {
 				switchoverGroup.put(
 						loc,
 						new IntWritable(Math.max(1, ((LocStayInfo) array[last])
 								.getNb().get())));
+			} else if (noise < 1) {
+				noise += NOISE_UNIT;
 			} else {
 				break;
 			}
 			last++;
 		}
+
+		if (mark == start) {
+			return start;
+		}
+
 		// check whether it is satisfied with the switch-over group condition
-		loc = ((LocStayInfo) array[last - 1]).getLoc().toString();
+		loc = ((LocStayInfo) array[mark + 1]).getLoc().toString();
+
 		for (Map.Entry<String, IntWritable> entry : switchoverGroup.entrySet()) {
-			if (entry.getKey().equals(loc) || entry.getValue().get() > 1) {
-				continue;
-			} else {
-				return start;
+			if (!entry.getKey().equals(loc) && entry.getValue().get() > 1) {
+				statisfiedItems++;
 			}
 		}
-		if (switchoverGroup.get(loc).get() > 1) {
-			return last - 1;
+
+		if (statisfiedItems * 10 > switchoverGroup.size() * 5) {
+			if (switchoverGroup.containsKey(loc)) {
+				if (switchoverGroup.get(loc).get() > 1) {
+					return mark + 1;
+				} else {
+					switchoverGroup.remove(loc);
+					return mark;
+				}
+			} else {
+				return mark;
+			}
 		} else {
-			switchoverGroup.remove(loc);
-			return last - 2;
+			return start;
 		}
 	}
 
-	private void flushGroup(Writable[] array, int type, int begin, int end,
+	private String flushGroup(Writable[] array, int type, int begin, int end,
 			int groupFrom, int groupTo, Context context) throws IOException,
 			InterruptedException {
 		mapOutputValue.getType().set(type);
@@ -166,25 +191,22 @@ public class DwellGroupMapper extends
 		mapOutputValue.getDate().set(info.getDate().copyBytes());
 		mapOutputValue.getBegin().set(info.getBegin().get());
 		mapOutputValue.getEnd().set(info.getBegin().get());
+		String groupName = getSwitchoverGroupName(switchoverGroup);
+		mapOutputValue.getSource().set(groupName);
 
-		// set location info
-		if (type == 2) {
-			info = (LocStayInfo) array[begin];
-			mapOutputValue.getLoc1().set(info.getLoc().copyBytes());
-			info = (LocStayInfo) array[end];
-			mapOutputValue.getLoc2().set(info.getLoc().copyBytes());
-		} else if (type == 0) {
-			info = (LocStayInfo) array[groupFrom];
-			mapOutputValue.getLoc1().set(info.getLoc().copyBytes());
-		} else {
-			SortedMap<String, IntWritable> sortedMap = new TreeMap<>(
-					switchoverGroup);
-			StringBuilder sb = new StringBuilder();
-			for (String loc : sortedMap.keySet()) {
-				sb.append(loc);
-			}
-			mapOutputValue.getLoc1().set(sb.toString());
-		}
+		/**
+		 * // set location info if (type == 2) { info = (LocStayInfo)
+		 * array[begin];
+		 * mapOutputValue.getSource().set(info.getLoc().copyBytes()); info =
+		 * (LocStayInfo) array[end];
+		 * mapOutputValue.getLoc2().set(info.getLoc().copyBytes()); } else if
+		 * (type == 0) { info = (LocStayInfo) array[groupFrom];
+		 * mapOutputValue.getLoc1().set(info.getLoc().copyBytes()); } else {
+		 * SortedMap<String, IntWritable> sortedMap = new TreeMap<>(
+		 * switchoverGroup); StringBuilder sb = new StringBuilder(); for (String
+		 * loc : sortedMap.keySet()) { sb.append("|").append(loc); }
+		 * mapOutputValue.getLoc1().set(sb.substring(1)); }
+		 */
 		// set the group & calculate the end
 		Writable[] arr = new Writable[groupTo - groupFrom + 1];
 		DwellItem item = null;
@@ -196,6 +218,17 @@ public class DwellGroupMapper extends
 		}
 		mapOutputValue.getGroup().set(arr);
 		context.write(mapOutputKey, mapOutputValue);
+		return groupName;
+	}
+
+	private String getSwitchoverGroupName(Map<String, IntWritable> group) {
+		SortedMap<String, IntWritable> sortedMap = new TreeMap<>(
+				switchoverGroup);
+		StringBuilder sb = new StringBuilder();
+		for (String loc : sortedMap.keySet()) {
+			sb.append("|").append(loc);
+		}
+		return sb.substring(1);
 	}
 
 	private int findPassGroupLastIndex(Writable[] array, int start, int end) {
@@ -225,5 +258,17 @@ public class DwellGroupMapper extends
 		item.getM1().set(info.getM1().get());
 		item.getX1().set(info.getX1().get());
 		item.getNb().set(info.getNb().get());
+	}
+
+	class Group {
+		int begin;
+		int end;
+		String name;
+
+		public Group(int begin, int end, String name) {
+			this.begin = begin;
+			this.end = end;
+			this.name = name;
+		}
 	}
 }

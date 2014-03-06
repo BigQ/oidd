@@ -12,13 +12,14 @@ public class DwellGroup implements Writable {
 
 	private final Text date;
 	/**
-	 * the group type, 0: linger, 1:switch-over , 2: pass
+	 * the group type, 0: linger, 1:switch-over , 2: location shift, 3: location
+	 * change
 	 */
 	private final IntWritable type;
 	private final IntWritable begin;
 	private final IntWritable end;
-	private final Text loc1;
-	private final Text loc2;
+	private final Text source;
+	private final Text target;
 	private final DwellItemArray group;
 
 	public DwellGroup() {
@@ -26,8 +27,8 @@ public class DwellGroup implements Writable {
 		this.type = new IntWritable();
 		this.begin = new IntWritable();
 		this.end = new IntWritable();
-		this.loc1 = new Text();
-		this.loc2 = new Text();
+		this.source = new Text();
+		this.target = new Text();
 		this.group = new DwellItemArray();
 	}
 
@@ -38,8 +39,8 @@ public class DwellGroup implements Writable {
 		group.write(out);
 		begin.write(out);
 		end.write(out);
-		loc1.write(out);
-		loc2.write(out);
+		source.write(out);
+		target.write(out);
 	}
 
 	@Override
@@ -49,8 +50,8 @@ public class DwellGroup implements Writable {
 		group.readFields(in);
 		begin.readFields(in);
 		end.readFields(in);
-		loc1.readFields(in);
-		loc2.readFields(in);
+		source.readFields(in);
+		target.readFields(in);
 	}
 
 	@Override
@@ -69,9 +70,9 @@ public class DwellGroup implements Writable {
 
 	public String getLocs() {
 		if (type.get() == 2) {
-			return loc1.toString() + "-" + loc2.toString();
+			return source.toString() + "-" + target.toString();
 		} else {
-			return loc1.toString();
+			return source.toString();
 		}
 	}
 
@@ -99,11 +100,11 @@ public class DwellGroup implements Writable {
 		return group;
 	}
 
-	public Text getLoc1() {
-		return loc1;
+	public Text getSource() {
+		return source;
 	}
 
-	public Text getLoc2() {
-		return loc2;
+	public Text getTarget() {
+		return target;
 	}
 }
