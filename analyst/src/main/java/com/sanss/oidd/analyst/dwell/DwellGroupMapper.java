@@ -120,7 +120,7 @@ public class DwellGroupMapper extends
 	private int findSwitchoverGroupLastIndex(Writable[] array, int start) {
 		int last = start;
 		int mark = start;
-		String loc;
+		String loc = null;
 		IntWritable count;
 		int noise = 0;
 		int statisfiedItems = 0;
@@ -158,8 +158,9 @@ public class DwellGroupMapper extends
 		}
 
 		// check whether it is satisfied with the switch-over group condition
-		loc = ((LocStayInfo) array[mark + 1]).getLoc().toString();
-
+		if (mark + 1 < array.length) {
+			loc = ((LocStayInfo) array[mark + 1]).getLoc().toString();
+		}
 		for (Map.Entry<String, IntWritable> entry : switchoverGroup.entrySet()) {
 			if (!entry.getKey().equals(loc) && entry.getValue().get() > 1) {
 				statisfiedItems++;
