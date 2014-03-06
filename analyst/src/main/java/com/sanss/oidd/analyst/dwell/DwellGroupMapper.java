@@ -152,9 +152,7 @@ public class DwellGroupMapper extends
 					switchoverGroup.put(loc, new IntWritable(repeats));
 				} else {
 					noiseGroup.put(loc, new IntWritable(1));
-					noise = noise
-							+ Math.max(1, ((LocStayInfo) array[last]).getNb()
-									.get());
+					noise = noise + Math.max(1, repeats * 2);
 				}
 			} else {
 				break;
@@ -164,7 +162,8 @@ public class DwellGroupMapper extends
 		}
 
 		loc = ((LocStayInfo) array[start]).getLoc().toString();
-		if (switchoverGroup.get(loc).get() > 1) {
+		if (switchoverGroup.get(loc).get() > 1
+				&& noiseGroup.size() < switchoverGroup.size()) {
 			return mark;
 		} else {
 			return start;
