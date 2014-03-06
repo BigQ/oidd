@@ -120,7 +120,7 @@ public class DwellGroupMapper extends
 	}
 
 	private int findSwitchoverGroupLastIndex(Writable[] array, int start) {
-		
+
 		int mark = start;
 		int last = start + 1;
 		String loc = null;
@@ -162,8 +162,8 @@ public class DwellGroupMapper extends
 		}
 
 		loc = ((LocStayInfo) array[start]).getLoc().toString();
-		if (switchoverGroup.get(loc).get() > 1
-				&& noiseGroup.size() < switchoverGroup.size()) {
+		if (switchoverGroup.get(loc).get() > 1 && switchoverGroup.size() > 1
+				&& switchoverGroup.size() * 2 + 5 > noiseGroup.size() * 4) {
 			return mark;
 		} else {
 			return start;
