@@ -172,9 +172,10 @@ public class DwellGroupMapper extends
 					mark = last;
 				} else {
 					noise = noise + 1;
-					if (noise < NOISE_THRESHOLD) {
-						noiseGroup.put(loc, new IntWritable(1));
+					if (noise >= NOISE_THRESHOLD && !checkGroupValid()) {
+						break;
 					}
+					noiseGroup.put(loc, new IntWritable(1));
 				}
 			}
 
@@ -182,12 +183,16 @@ public class DwellGroupMapper extends
 		}
 
 		loc = ((LocStayInfo) array[start]).getLoc().toString();
-		if (switchoverGroup.get(loc).get() > 1 && switchoverGroup.size() > 1
-				&& switchoverGroup.size() * 2 + 5 > noiseGroup.size() * 4) {
+		if (switchoverGroup.get(loc).get() > 1 && checkGroupValid()) {
 			return mark;
 		} else {
 			return start;
 		}
+	}
+
+	private boolean checkGroupValid() {
+		return switchoverGroup.size() > 1
+				&& switchoverGroup.size() * 2 + 5 > noiseGroup.size() * 4;
 	}
 
 	private String flushGroup(Writable[] array, int type, List<Group> marks,
