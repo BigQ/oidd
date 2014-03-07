@@ -21,6 +21,7 @@ public class DwellSplitMapper extends
 			// do something with the location shift group
 			return;
 		} else {
+			int hh0, hh1;
 			mapOutputValue.getDate().set(value.getDate().copyBytes());
 			for (int i = (value.getBegin().get() / 3600); i <= (value.getEnd()
 					.get() / 3600); i++) {
@@ -28,9 +29,12 @@ public class DwellSplitMapper extends
 					break;
 				}
 				// activity value in [1,100]
+				hh1 = Math.min(value.getEnd().get(), (i + 1) * 3600);
+				hh0 = Math.max(value.getBegin().get(), i * 3600);
+
 				mapOutputValue.getAc().set(
-						(value.getEnd().get() - i * 3600 > 3600 ? 3600 : value
-								.getEnd().get() - i * 3600) * 100 / 3600);
+						(hh1 - hh0 >= 3599 ? 3600 : hh1 - hh0) * 100 / 3600);
+
 				mapOutputValue.getHh().set(getHH(i));
 				StringTokenizer token = new StringTokenizer(value.getLocs(),
 						"|");
