@@ -148,7 +148,9 @@ public class DwellGroupMapper extends
 
 		while (last < array.length && noise < NOISE_THRESHOLD) {
 			loc = ((LocStayInfo) array[last]).getLoc().toString();
-			repeats = ((LocStayInfo) array[last]).getNb().get();
+			repeats = ((LocStayInfo) array[last]).getNb().get()
+					* (((LocStayInfo) array[last]).getSpan().get() > Common.C_V_LINGER_PEAK_THRED ? 1
+							: 0);
 			if (((LocStayInfo) array[last]).getBegin().get() != lastEnd) {
 				break;
 			} else {
