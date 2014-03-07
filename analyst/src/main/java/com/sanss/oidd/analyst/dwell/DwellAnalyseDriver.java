@@ -16,14 +16,15 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import com.sanss.oidd.common.io.DwellActivityItem;
 import com.sanss.oidd.common.io.DwellGroup;
 import com.sanss.oidd.common.io.EventTSArray;
 import com.sanss.oidd.common.io.LocStayArray;
 
-public class DwellGroupDriver extends Configured implements Tool {
+public class DwellAnalyseDriver extends Configured implements Tool {
 
 	public static void main(String[] args) throws Exception {
-		int exitCode = ToolRunner.run(new DwellGroupDriver(), args);
+		int exitCode = ToolRunner.run(new DwellAnalyseDriver(), args);
 		System.exit(exitCode);
 	}
 
@@ -36,7 +37,7 @@ public class DwellGroupDriver extends Configured implements Tool {
 			return -1;
 		}
 		Job job = Job.getInstance(getConf());
-		job.setJobName("User Location Stay Calculate and Group");
+		job.setJobName("User Location Stay Calculate and Group and Analyse");
 		job.setJarByClass(getClass());
 
 		// set map-reduce
@@ -44,10 +45,13 @@ public class DwellGroupDriver extends Configured implements Tool {
 				EventTSArray.class, Text.class, LocStayArray.class, getConf());
 		ChainMapper.addMapper(job, DwellGroupMapper.class, Text.class,
 				LocStayArray.class, Text.class, DwellGroup.class, getConf());
+		ChainMapper.addMapper(job, DwellSplitMapper.class, Text.class,
+				DwellGroup.class, Text.class, DwellActivityItem.class,
+				getConf());
 
 		// set output key and value type
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(DwellGroup.class);
+		job.setOutputValueClass(DwellActivityItem.class);
 
 		// set compress option
 		SequenceFileOutputFormat.setOutputCompressionType(job,
@@ -63,4 +67,5 @@ public class DwellGroupDriver extends Configured implements Tool {
 
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
+
 }
