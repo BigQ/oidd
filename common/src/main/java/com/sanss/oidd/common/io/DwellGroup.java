@@ -12,8 +12,7 @@ public class DwellGroup implements Writable {
 
 	private final Text date;
 	/**
-	 * the group type, 0: linger, 1:switch-over , 2: location shift, 3: location
-	 * change
+	 * the group type, 0: linger, 1:switch-over , 2: location shift
 	 */
 	private final IntWritable type;
 	private final IntWritable begin;
