@@ -89,7 +89,7 @@ public class DwellGroupMapper extends
 				String groupName = flushGroup(array, 0, marks, index, index,
 						context);
 				// mark the index
-				marks.add(new Group(begin, index, groupName));
+				marks.add(new Group(index, index, groupName));
 
 				index++;
 			} else {
@@ -211,7 +211,7 @@ public class DwellGroupMapper extends
 					break;
 				}
 			}
-			if (i == 0 || groupFrom + 1 != marks.get(i - 1).end) {
+			if (i == 0 || groupFrom - 1 != marks.get(i - 1).end) {
 				mapOutputValue.getSource().set(
 						((LocStayInfo) array[groupFrom]).getLoc().toString());
 			} else {
