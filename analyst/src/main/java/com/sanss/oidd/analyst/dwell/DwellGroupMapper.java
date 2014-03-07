@@ -183,7 +183,7 @@ public class DwellGroupMapper extends
 		}
 
 		loc = ((LocStayInfo) array[start]).getLoc().toString();
-		if (switchoverGroup.get(loc).get() > 1 && checkGroupValid()) {
+		if (switchoverGroup.get(loc).get() > 1 && switchoverGroup.size() > 1) {
 			return mark;
 		} else {
 			return start;
