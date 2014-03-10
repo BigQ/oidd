@@ -13,13 +13,13 @@ import com.sanss.oidd.common.io.DwellActivityItem;
 public class DwellFilterReducer extends
 		Reducer<Text, DwellActivityItem, Text, Text> {
 
-	private HashMap<String, IntWritable> dailyCounter = new HashMap<>();
-
 	protected static final String MEASURE_DAILY_THRESHOLD = "oidd.dwell.measure.daily.min";
 	protected static final String MEASURE_DAYS_THRESHOLD = "oidd.dwell.measure.days.min";
 
 	private int dailyAcMin;
 	private int daysCountMin;
+
+	private HashMap<String, IntWritable> dailyCounter = new HashMap<>();
 
 	private Text outputKey = new Text();
 	private Text outputValue = new Text();
@@ -27,6 +27,8 @@ public class DwellFilterReducer extends
 	@Override
 	protected void reduce(Text key, Iterable<DwellActivityItem> values,
 			Context context) throws IOException, InterruptedException {
+		dailyCounter.clear();
+
 		for (DwellActivityItem item : values) {
 			if (dailyCounter.containsKey(item.getDate().toString())) {
 				dailyCounter.get(item.getDate().toString()).set(
@@ -37,24 +39,24 @@ public class DwellFilterReducer extends
 						item.getAc().get()));
 			}
 		}
-		int min = Integer.MAX_VALUE, max = 0, total = 0;
+		int min = Integer.MAX_VALUE, max = 0, total = 0, count = 0;
+
 		for (String day : dailyCounter.keySet()) {
-			if (dailyCounter.get(day).get() < dailyAcMin) {
-				dailyCounter.remove(day);
-			} else {
+			if (dailyCounter.get(day).get() >= dailyAcMin) {
+				count++;
 				min = Math.min(min, dailyCounter.get(day).get());
 				max = Math.max(max, dailyCounter.get(day).get());
 				total += dailyCounter.get(day).get();
 			}
 		}
 
-		if (dailyCounter.size() >= daysCountMin) {
+		if (count >= daysCountMin) {
 			StringTokenizer token = new StringTokenizer(key.toString(), ",");
 			outputKey.set(token.nextToken());
 			StringBuilder sb = new StringBuilder();
-			sb.append(token.nextToken()).append(",")
-					.append(dailyCounter.size()).append(",").append(total)
-					.append(",").append(min).append(",").append(max);
+			sb.append(token.nextToken()).append(",").append(count).append(",")
+					.append(total).append(",").append(min).append(",")
+					.append(max);
 			outputValue.set(sb.toString());
 			context.write(outputKey, outputValue);
 		}
