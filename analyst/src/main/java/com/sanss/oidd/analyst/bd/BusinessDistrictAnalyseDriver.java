@@ -75,7 +75,7 @@ public class BusinessDistrictAnalyseDriver extends Configured implements Tool {
 		jobChain.addJob(job2);
 		
 		jobChain.run();
-		return 0;
+		return 1;
 	}
 
 }

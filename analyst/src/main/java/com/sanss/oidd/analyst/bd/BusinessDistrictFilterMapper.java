@@ -21,7 +21,6 @@ import com.sanss.oidd.analyst.utils.Common;
 import com.sanss.oidd.common.io.EventInfo;
 import com.sanss.oidd.common.io.EventTSArray;
 
-
 public class BusinessDistrictFilterMapper extends
 		Mapper<Text, EventTSArray, Text, IntWritable> {
 
@@ -29,9 +28,9 @@ public class BusinessDistrictFilterMapper extends
 	private final String BusinessMapFileURL = "/user/nmger/oidd/share/business.txt";
 	private final String BUSINESS_MAP_COUNTER = "BusinessMapFileCounter";
 	private final String BUSINESS_MAP_COUNTER_ITEMS = "Items";
-	
+
 	private IntWritable linger = new IntWritable();
-	
+
 	@Override
 	protected void map(Text key, EventTSArray value, Context context)
 			throws IOException, InterruptedException {
@@ -69,7 +68,7 @@ public class BusinessDistrictFilterMapper extends
 				String businessMapKey = generateBusinessMapKey(cell, sector);
 				if (businessMap.containsKey(businessMapKey)) {
 					lastDiffs = diffs;
-					lastDate = e.getTrackDate().toString();
+					lastDate = e.getTrackDate().toString().substring(0, 10);
 					lastArea = businessMap.get(businessMapKey);
 					lastOK = true;
 				} else {
