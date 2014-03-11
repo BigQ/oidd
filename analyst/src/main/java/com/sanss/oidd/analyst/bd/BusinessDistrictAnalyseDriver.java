@@ -49,8 +49,8 @@ public class BusinessDistrictAnalyseDriver extends Configured implements Tool {
 		job1.getJob().setInputFormatClass(SequenceFileInputFormat.class);
 		job1.getJob().setOutputFormatClass(SequenceFileOutputFormat.class);
 		FileInputFormat.setInputPaths(job1.getJob(), new Path(args[0]));
-		FileOutputFormat.setOutputPath(job1.getJob(),
-				new Path(args[1] + "/intermediate"));
+		FileOutputFormat.setOutputPath(job1.getJob(), new Path(args[1]
+				+ "/intermediate"));
 
 		ControlledJob job2 = new ControlledJob(new Configuration());
 		job2.getJob().getConfiguration().set("mapreduce.job.reduces", "1");
@@ -64,18 +64,20 @@ public class BusinessDistrictAnalyseDriver extends Configured implements Tool {
 		job2.getJob().setOutputKeyClass(Text.class);
 		job2.getJob().setOutputValueClass(NullWritable.class);
 		job2.getJob().setInputFormatClass(SequenceFileInputFormat.class);
-		LazyOutputFormat.setOutputFormatClass(job2.getJob(), TextOutputFormat.class);
+		LazyOutputFormat.setOutputFormatClass(job2.getJob(),
+				TextOutputFormat.class);
 		FileInputFormat.setInputPaths(job2.getJob(), new Path(args[1]
 				+ "/intermediate/part*"));
-		FileOutputFormat.setOutputPath(job2.getJob(), new Path(args[1] + "/result"));
-		
+		FileOutputFormat.setOutputPath(job2.getJob(), new Path(args[1]
+				+ "/result"));
+
 		// add jobs
 		job2.addDependingJob(job1);
 		jobChain.addJob(job1);
 		jobChain.addJob(job2);
-		
+
 		jobChain.run();
-		return 1;
+		return jobChain.getFailedJobList().size() == 0 ? 0 : 1;
 	}
 
 }
