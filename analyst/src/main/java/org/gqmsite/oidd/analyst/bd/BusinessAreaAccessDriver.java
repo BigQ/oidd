@@ -33,21 +33,21 @@ public class BusinessAreaAccessDriver extends Configured implements Tool {
 		Job job = Job.getInstance(getConf());
 		job.setJobName("BusinessArea Access Measure");
 		job.setJarByClass(getClass());
-		
+
 		job.setMapperClass(BusinessAreaAccessMapper.class);
 		job.setReducerClass(BusinessAreaAccessReducer.class);
-		
+
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(IntWritable.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(NullWritable.class);
-		
+
 		job.setInputFormatClass(SequenceFileInputFormat.class);
 		LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
-		
+
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		
+
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
