@@ -38,6 +38,7 @@ public class DwellFilterDriver extends Configured implements Tool {
 
 		// set map-reduce
 		job.setMapperClass(DwellFilterMapper.class);
+		job.setCombinerClass(DwellFilterCombiner.class);
 		job.setReducerClass(DwellFilterReducer.class);
 		
 		// set output key and value type

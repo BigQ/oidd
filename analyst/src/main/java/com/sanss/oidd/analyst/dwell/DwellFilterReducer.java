@@ -40,6 +40,7 @@ public class DwellFilterReducer extends
 			}
 		}
 		int min = Integer.MAX_VALUE, max = 0, total = 0, count = 0;
+		String lastDate = "";
 
 		for (String day : dailyCounter.keySet()) {
 			if (dailyCounter.get(day).get() >= dailyAcMin) {
@@ -47,6 +48,7 @@ public class DwellFilterReducer extends
 				min = Math.min(min, dailyCounter.get(day).get());
 				max = Math.max(max, dailyCounter.get(day).get());
 				total += dailyCounter.get(day).get();
+				lastDate = lastDate.compareTo(day) > 0 ? lastDate : day;
 			}
 		}
 
@@ -66,9 +68,9 @@ public class DwellFilterReducer extends
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
 		dailyAcMin = context.getConfiguration().getInt(MEASURE_DAILY_THRESHOLD,
-				0);
+				1);
 		daysCountMin = context.getConfiguration().getInt(
-				MEASURE_DAYS_THRESHOLD, 0);
+				MEASURE_DAYS_THRESHOLD, 1);
 	}
 
 }

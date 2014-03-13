@@ -1,15 +1,13 @@
 package com.sanss.oidd.analyst.bd;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
-import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -35,49 +33,41 @@ public class BusinessDistrictAnalyseDriver extends Configured implements Tool {
 			return -1;
 		}
 
-		JobControl jobChain = new JobControl(
-				"BusinessDistrict Analyse, Filter & Group");
-		ControlledJob job1 = new ControlledJob(getConf());
+		Job job1 = Job.getInstance(getConf());
 		job1.setJobName("BusinessDistrict Analyse -> Filter Stage");
-		job1.getJob().setJarByClass(getClass());
+		job1.setJarByClass(getClass());
 		// set map-reduce
-		job1.getJob().setMapperClass(BusinessDistrictFilterMapper.class);
-		job1.getJob().setCombinerClass(IntSumReducer.class);
-		job1.getJob().setReducerClass(IntSumReducer.class);
-		job1.getJob().setOutputKeyClass(Text.class);
-		job1.getJob().setOutputValueClass(IntWritable.class);
-		job1.getJob().setInputFormatClass(SequenceFileInputFormat.class);
-		job1.getJob().setOutputFormatClass(SequenceFileOutputFormat.class);
-		FileInputFormat.setInputPaths(job1.getJob(), new Path(args[0]));
-		FileOutputFormat.setOutputPath(job1.getJob(), new Path(args[1]
-				+ "/intermediate"));
+		job1.setMapperClass(BusinessDistrictFilterMapper.class);
+		job1.setCombinerClass(IntSumReducer.class);
+		job1.setReducerClass(IntSumReducer.class);
+		job1.setOutputKeyClass(Text.class);
+		job1.setOutputValueClass(IntWritable.class);
+		job1.setInputFormatClass(SequenceFileInputFormat.class);
+		job1.setOutputFormatClass(SequenceFileOutputFormat.class);
+		FileInputFormat.setInputPaths(job1, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job1,
+				new Path(args[1] + "/intermediate"));
 
-		ControlledJob job2 = new ControlledJob(new Configuration());
-		job2.getJob().getConfiguration().set("mapreduce.job.reduces", "1");
-		job2.getJob().setJobName("BusinessDistrict Analyse -> Group Stage");
-		job2.getJob().setJarByClass(getClass());
-		// set map-reduce
-		job2.getJob().setMapperClass(BusinessDistrictGroupMapper.class);
-		job2.getJob().setReducerClass(BusinessDistrictGroupReducer.class);
-		job2.getJob().setMapOutputKeyClass(Text.class);
-		job2.getJob().setMapOutputValueClass(IntWritable.class);
-		job2.getJob().setOutputKeyClass(Text.class);
-		job2.getJob().setOutputValueClass(NullWritable.class);
-		job2.getJob().setInputFormatClass(SequenceFileInputFormat.class);
-		LazyOutputFormat.setOutputFormatClass(job2.getJob(),
-				TextOutputFormat.class);
-		FileInputFormat.setInputPaths(job2.getJob(), new Path(args[1]
-				+ "/intermediate/part*"));
-		FileOutputFormat.setOutputPath(job2.getJob(), new Path(args[1]
-				+ "/result"));
-
-		// add jobs
-		job2.addDependingJob(job1);
-		jobChain.addJob(job1);
-		jobChain.addJob(job2);
-
-		jobChain.run();
-		return jobChain.getFailedJobList().size() == 0 ? 0 : 1;
+		if (job1.waitForCompletion(true)) {
+			Job job2 = Job.getInstance(getConf());
+			job2.getConfiguration().set("mapreduce.job.reduces", "1");
+			job2.setJobName("BusinessDistrict Analyse -> Group Stage");
+			job2.setJarByClass(getClass());
+			// set map-reduce
+			job2.setMapperClass(BusinessDistrictGroupMapper.class);
+			job2.setReducerClass(BusinessDistrictGroupReducer.class);
+			job2.setMapOutputKeyClass(Text.class);
+			job2.setMapOutputValueClass(IntWritable.class);
+			job2.setOutputKeyClass(Text.class);
+			job2.setOutputValueClass(NullWritable.class);
+			job2.setInputFormatClass(SequenceFileInputFormat.class);
+			LazyOutputFormat.setOutputFormatClass(job2, TextOutputFormat.class);
+			FileInputFormat.setInputPaths(job2, new Path(args[1]
+					+ "/intermediate/part*"));
+			FileOutputFormat.setOutputPath(job2, new Path(args[1] + "/result"));
+			return job2.waitForCompletion(true) ? 0 : 1;
+		}
+		return 1;
 	}
 
 }
