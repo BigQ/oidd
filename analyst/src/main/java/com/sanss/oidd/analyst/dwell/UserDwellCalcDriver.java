@@ -14,7 +14,6 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import com.sanss.oidd.common.io.DwellActivityItem;
 import com.sanss.oidd.common.io.DwellGroup;
 import com.sanss.oidd.common.io.EventTSArray;
 import com.sanss.oidd.common.io.LocStayArray;
@@ -44,7 +43,7 @@ public class UserDwellCalcDriver extends Configured implements Tool {
 		ChainMapper.addMapper(job, DwellGroupMapper.class, Text.class,
 				LocStayArray.class, Text.class, DwellGroup.class, getConf());
 		ChainMapper.addMapper(job, UserDwellFormatMapper.class, Text.class,
-				DwellGroup.class, Text.class, DwellActivityItem.class,
+				DwellGroup.class, Text.class, NullWritable.class,
 				getConf());
 
 		// set output key and value type
