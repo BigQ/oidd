@@ -64,11 +64,14 @@ public class UserActiveCalcMapper extends
 			case Common.C_EVENT_X1ONLINE:
 				x1++;
 				break;
-			case Common.C_EVENT_POWEROFF:
-				lastOffline = true;
-				break;
 			default:
 				nbe++;
+			}
+
+			if (info.getEvent().get() == Common.C_EVENT_POWEROFF) {
+				lastOffline = true;
+			} else {
+				lastOffline = false;
 			}
 		}
 		if (info != null) {
