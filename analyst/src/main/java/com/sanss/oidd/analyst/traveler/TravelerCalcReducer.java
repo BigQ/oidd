@@ -27,9 +27,9 @@ public class TravelerCalcReducer extends
 	private final int OUT = 2;
 
 	private HashMap<String, String> transportMap;
-	private String calc_date;
-	private String calc_predate;
-	private String calc_nextdate;
+	private String CALC_DATE;
+	private String CALC_DATE_PRE;
+	private String CALC_DATE_NEXT;
 
 	private int OFFLINE_MIN_DIFFS;
 	private int IN_MIN_DIFFS = 7200;
@@ -40,80 +40,92 @@ public class TravelerCalcReducer extends
 	@Override
 	protected void reduce(Text key, Iterable<EventTSArray> values,
 			Context context) throws IOException, InterruptedException {
-		EventTSArray array = null;
-
-		EventInfo info;
+		EventTSArray preArray = new EventTSArray(), nextArray = new EventTSArray(), targetArray = new EventTSArray();
+		EventInfo info = null;
 		String firstTargetDate = null, lastTargetDate = null, mark_date = null, mark_bdid = null, date = null, loc = null, imsi = null;
 		boolean inOK = false;
 		int first_online, last_online, current = 0, last = 0, mark = 0;
 
-		array = getTSArray(values, calc_date);
-		if (array != null) {
-			info = (EventInfo) array.get()[0];
-			firstTargetDate = info.getTrackDate().toString();
-			imsi = info.getImsi().toString();
-
-			info = (EventInfo) array.get()[array.get().length - 1];
-			lastTargetDate = info.getTrackDate().toString();
-		} else {
-			return;
-		}
-		// calculate "first_online"
-		array = getTSArray(values, calc_predate);
-		first_online = findFirstOnlineTime(firstTargetDate, array);
-		// calculate "last_online"
-		array = getTSArray(values, calc_nextdate);
-		last_online = findLastOnlineTime(lastTargetDate, array);
-
-		// calculate traveler
-		array = getTSArray(values, calc_date);
-		last = last_online;
-		for (Writable w : array.get()) {
-			info = (EventInfo) w;
-			date = info.getTrackDate().toString();
-			current = Common.getSeconds(date);
-			loc = generateTransportMapKey(info.getCell().toString(), info
-					.getSector().toString());
-
-			// adjust "first_online"
-			if (skipOffline(current, last)) {
-
-				// judge OUT event
-				if (mark != 0 && current - mark <= OUT_MIN_DIFFS) {
-					keyOutput.set(formatKey(key.toString(), imsi, mark_date,
-							mark_bdid, OUT));
-					mark = 0;
+		for (EventTSArray array : values) {
+			Writable[] arr = new Writable[array.get().length];
+			for (int i = 0; i < array.get().length; i++) {
+				info = ((EventInfo) array.get()[i]).copy();
+				arr[i] = info;
+			}
+			if (arr.length > 0) {
+				if (transTrackDate2Date(info.getTrackDate().toString()).equals(
+						CALC_DATE)) {
+					targetArray.set(arr);
+					firstTargetDate = ((EventInfo) targetArray.get()[0])
+							.getTrackDate().toString();
+					lastTargetDate = info.getTrackDate().toString();
+					imsi = info.getImsi().toString();
+				} else if (transTrackDate2Date(info.getTrackDate().toString())
+						.equals(CALC_DATE_PRE)) {
+					preArray.set(arr);
+				} else if (transTrackDate2Date(info.getTrackDate().toString())
+						.equals(CALC_DATE_NEXT)) {
+					nextArray.set(arr);
 				}
-				// update the "first_online"
-				first_online = current;
-				inOK = false;
-			}// :if
+			}
+		}
 
-			// judge whether the "loc" appeared in the transportMap
-			if (transportMap.containsKey(loc)) {
-				if (!inOK) {
-					// judge IN event
-					if (current - first_online <= IN_MIN_DIFFS) {
-						keyOutput.set(formatKey(key.toString(), imsi, date,
-								transportMap.get(loc), IN));
-						context.write(keyOutput, NullWritable.get());
-						inOK = true;
+		if (targetArray != null && targetArray.get() != null) {
+
+			// calculate "first_online"
+			first_online = findFirstOnlineTime(firstTargetDate, preArray);
+			// calculate "last_online"
+			last_online = findLastOnlineTime(lastTargetDate, nextArray);
+
+			// calculate traveler
+			last = last_online;
+			for (Writable w : targetArray.get()) {
+				info = (EventInfo) w;
+				date = info.getTrackDate().toString();
+				current = Common.getSeconds(date);
+				loc = generateTransportMapKey(info.getCell().toString(), info
+						.getSector().toString());
+
+				// adjust "first_online"
+				if (skipOffline(current, last)) {
+
+					// judge OUT event
+					if (mark != 0 && current - mark <= OUT_MIN_DIFFS) {
+						keyOutput.set(formatKey(key.toString(), imsi,
+								mark_date, mark_bdid, OUT));
+						mark = 0;
 					}
-				}
-				// mark the last "loc" appeared in the transportMap
-				mark = current;
-				mark_date = date;
-				mark_bdid = transportMap.get(loc);
-			}// :if
+					// update the "first_online"
+					first_online = current;
+					inOK = false;
+				}// :if
 
-			last = current;
-		}// :for
+				// judge whether the "loc" appeared in the transportMap
+				if (transportMap.containsKey(loc)) {
+					if (!inOK) {
+						// judge IN event
+						if (current - first_online <= IN_MIN_DIFFS) {
+							keyOutput.set(formatKey(key.toString(), imsi, date,
+									transportMap.get(loc), IN));
+							context.write(keyOutput, NullWritable.get());
+							inOK = true;
+						}
+					}
+					// mark the last "loc" appeared in the transportMap
+					mark = current;
+					mark_date = date;
+					mark_bdid = transportMap.get(loc);
+				}// :if
 
-		// judge last "mark" OUT event
-		if (mark != 0 && last_online - mark <= OUT_MIN_DIFFS) {
-			keyOutput.set(formatKey(key.toString(), imsi, mark_date, mark_bdid,
-					OUT));
-		}
+				last = current;
+			}// :for
+
+			// judge last "mark" OUT event
+			if (mark != 0 && last_online - mark <= OUT_MIN_DIFFS) {
+				keyOutput.set(formatKey(key.toString(), imsi, mark_date,
+						mark_bdid, OUT));
+			}
+		}// :if
 	}
 
 	@Override
@@ -139,16 +151,17 @@ public class TravelerCalcReducer extends
 
 		}
 
-		calc_date = context.getConfiguration().get(
+		CALC_DATE = context.getConfiguration().get(
 				"oidd.analyst.traveler.calc.date");
-		calc_predate = context.getConfiguration().get(
+		CALC_DATE_PRE = context.getConfiguration().get(
 				"oidd.analyst.traveler.calc.predate");
-		calc_nextdate = context.getConfiguration().get(
+		CALC_DATE_NEXT = context.getConfiguration().get(
 				"oidd.analyst.traveler.calc.nextdate");
 		OFFLINE_MIN_DIFFS = context.getConfiguration().getInt(
 				"oidd.analyst.traveler.calc.offline", 21600);
 
-		if (calc_date == null || calc_predate == null || calc_nextdate == null) {
+		if (CALC_DATE == null || CALC_DATE_PRE == null
+				|| CALC_DATE_NEXT == null) {
 			throw new IOException(
 					"parameters (oidd.analyst.traveler.calc.date | oidd.analyst.traveler.calc.predate | oidd.analyst.traveler.calc.nextdate) not set");
 		}
@@ -174,18 +187,6 @@ public class TravelerCalcReducer extends
 		return current - last >= OFFLINE_MIN_DIFFS;
 	}
 
-	private EventTSArray getTSArray(Iterable<EventTSArray> values,
-			String targetDate) {
-		for (EventTSArray array : values) {
-			String date = transTrackDate2Date(((EventInfo) array.get()[0])
-					.getTrackDate().toString());
-			if (date.equals(targetDate)) {
-				return array;
-			}
-		}
-		return null;
-	}
-
 	private int findFirstOnlineTime(String firstTargetDate, EventTSArray pre) {
 		int current = 0, last = 0;
 		String date = null;
@@ -193,7 +194,7 @@ public class TravelerCalcReducer extends
 
 		last = Common.getSeconds(firstTargetDate);
 
-		if (pre != null) {
+		if (pre != null && pre.get() != null) {
 			for (int i = pre.get().length - 1; i >= 0; i--) {
 				info = (EventInfo) pre.get()[i];
 				date = info.getTrackDate().toString();
@@ -216,7 +217,7 @@ public class TravelerCalcReducer extends
 
 		last = Common.getSeconds(lastTargetDate);
 
-		if (next != null) {
+		if (next != null && next.get() != null) {
 			for (Writable w : next.get()) {
 				info = (EventInfo) w;
 				date = info.getTrackDate().toString();
