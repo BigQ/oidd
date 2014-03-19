@@ -90,6 +90,14 @@ public class Common {
 				* 60 + calendar.get(Calendar.HOUR_OF_DAY) * 3600;
 	}
 	
+	public static final int getSeconds(String dateStr){
+		try {
+			return (int) (sdf_common.parse(dateStr).getTime() / 1000);
+		} catch (ParseException e) {
+			return -1;
+		}
+	}
+	
 	/**
 	 * format the location expression. the pattern is "cell@sector"
 	 * @param cell
