@@ -47,25 +47,21 @@ public class TravelerCalcReducer extends
 		int first_online, last_online, current = 0, last = 0, mark = 0;
 
 		for (EventTSArray array : values) {
-			Writable[] arr = new Writable[array.get().length];
-			for (int i = 0; i < array.get().length; i++) {
-				info = ((EventInfo) array.get()[i]).copy();
-				arr[i] = info;
-			}
-			if (arr.length > 0) {
-				if (transTrackDate2Date(info.getTrackDate().toString()).equals(
-						CALC_DATE)) {
-					targetArray.set(arr);
-					firstTargetDate = ((EventInfo) targetArray.get()[0])
-							.getTrackDate().toString();
-					lastTargetDate = info.getTrackDate().toString();
+			if (array.get() != null && array.get().length > 0) {
+				date = transTrackDate2Date(((EventInfo) array.get()[0])
+						.getTrackDate().toString());
+				if (date.equals(CALC_DATE)) {
+					targetArray.set(array.get());
+					info = (EventInfo) targetArray.get()[0];
+					firstTargetDate = info.getTrackDate().toString();
 					imsi = info.getImsi().toString();
-				} else if (transTrackDate2Date(info.getTrackDate().toString())
-						.equals(CALC_DATE_PRE)) {
-					preArray.set(arr);
-				} else if (transTrackDate2Date(info.getTrackDate().toString())
-						.equals(CALC_DATE_NEXT)) {
-					nextArray.set(arr);
+
+					info = (EventInfo) targetArray.get()[targetArray.get().length - 1];
+					lastTargetDate = info.getTrackDate().toString();
+				} else if (date.equals(CALC_DATE_PRE)) {
+					preArray.set(array.get());
+				} else if (date.equals(CALC_DATE_NEXT)) {
+					nextArray.set(array.get());
 				}
 			}
 		}
@@ -90,9 +86,10 @@ public class TravelerCalcReducer extends
 				if (skipOffline(current, last)) {
 
 					// judge OUT event
-					if (mark != 0 && current - mark <= OUT_MIN_DIFFS) {
+					if (mark != 0 && last - mark <= OUT_MIN_DIFFS) {
 						keyOutput.set(formatKey(key.toString(), imsi,
 								mark_date, mark_bdid, OUT));
+						context.write(keyOutput, NullWritable.get());
 						mark = 0;
 					}
 					// update the "first_online"
@@ -124,6 +121,7 @@ public class TravelerCalcReducer extends
 			if (mark != 0 && last_online - mark <= OUT_MIN_DIFFS) {
 				keyOutput.set(formatKey(key.toString(), imsi, mark_date,
 						mark_bdid, OUT));
+				context.write(keyOutput, NullWritable.get());
 			}
 		}// :if
 	}
