@@ -32,8 +32,8 @@ public class TravelerCalcReducer extends
 	private String CALC_DATE_NEXT;
 
 	private int OFFLINE_MIN_DIFFS;
-	private int IN_MIN_DIFFS = 7200;
-	private int OUT_MIN_DIFFS = 7200;
+	private int IN_MIN_DIFFS;
+	private int OUT_MIN_DIFFS;
 
 	private Text keyOutput = new Text();
 
@@ -157,6 +157,10 @@ public class TravelerCalcReducer extends
 				"oidd.analyst.traveler.calc.nextdate");
 		OFFLINE_MIN_DIFFS = context.getConfiguration().getInt(
 				"oidd.analyst.traveler.calc.offline", 21600);
+		IN_MIN_DIFFS = context.getConfiguration().getInt(
+				"oidd.analyst.traveler.calc.in.diffs", 7200);
+		OUT_MIN_DIFFS = context.getConfiguration().getInt(
+				"oidd.analyst.traveler.calc.out.diffs", 7200);
 
 		if (CALC_DATE == null || CALC_DATE_PRE == null
 				|| CALC_DATE_NEXT == null) {
